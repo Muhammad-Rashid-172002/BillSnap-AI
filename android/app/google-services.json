@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "480647790824",
+    "project_id": "expanse-tracker-app-2d7e4",
+    "storage_bucket": "expanse-tracker-app-2d7e4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480647790824:android:40e137210135d9a58e895d",
+        "android_client_info": {
+          "package_name": "com.example.expanse_tracker_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "480647790824-id9c88rcuh764bng3ij5ccnmra6dn83j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.expanse_tracker_app",
+            "certificate_hash": "d14a2528de49c36b8c88928b7872241cefea04c7"
+          }
+        },
+        {
+          "client_id": "480647790824-87suhol09jcqmpatlql80bgj62pdvhnr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxQzd36H8cGjQM_7Bb3fhXPCF8BHbEaaY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "480647790824-87suhol09jcqmpatlql80bgj62pdvhnr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "480647790824-1hdll7io52hme49icou6o5rgnd1al330.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.expanseTrackerApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480647790824:android:05249a9639dde7a68e895d",
+        "android_client_info": {
+          "package_name": "com.example.snapbilling"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "480647790824-87suhol09jcqmpatlql80bgj62pdvhnr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxQzd36H8cGjQM_7Bb3fhXPCF8BHbEaaY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "480647790824-87suhol09jcqmpatlql80bgj62pdvhnr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "480647790824-1hdll7io52hme49icou6o5rgnd1al330.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.expanseTrackerApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

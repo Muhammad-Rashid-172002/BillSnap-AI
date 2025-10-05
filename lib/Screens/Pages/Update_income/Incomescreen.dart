@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expanse_tracker_app/Screens/Pages/Update_Income/AddIncomescreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:snapbilling/Screens/Pages/Update_income/AddIncomescreen.dart';
 
 // ==== COLORS ====
 const Color kAppBarColor = Color(0xFF1565C0); // Deep Blue

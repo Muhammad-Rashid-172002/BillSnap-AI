@@ -1,17 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expanse_tracker_app/Screens/Pages/expanse/Category_breakdown_screen.dart';
-import 'package:expanse_tracker_app/Screens/Pages/smallCard/addreminderscreen.dart'
-    hide
-        kButtonPrimary,
-        kAppBarTextColor,
-        kAppBarColor,
-        kCardTextColor,
-        kCardColor,
-        kFadedTextColor;
+
+   
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
+import 'package:snapbilling/Screens/Pages/expanse/Category_breakdown_screen.dart';
+import 'package:snapbilling/Screens/Pages/smallCard/addreminderscreen.dart' hide kFadedTextColor, kButtonPrimary, kCardColor, kAppBarTextColor, kAppBarColor, kCardTextColor;
 
 /// Temporary storage for guest reminders (in-memory)
 class GuestReminderStore {

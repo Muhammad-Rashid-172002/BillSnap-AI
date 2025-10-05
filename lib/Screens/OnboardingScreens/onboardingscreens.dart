@@ -1,10 +1,11 @@
-import 'package:expanse_tracker_app/Screens/Auth_moduls/LoginRequriedPage.dart';
-import 'package:expanse_tracker_app/Screens/Pages/expanse/Category_breakdown_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:snapbilling/Screens/Auth_moduls/LoginRequriedPage.dart';
+import 'package:snapbilling/Screens/Pages/expanse/Category_breakdown_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

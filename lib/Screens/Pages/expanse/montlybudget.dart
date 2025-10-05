@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expanse_tracker_app/Screens/Pages/expanse/Category_breakdown_screen.dart';
-import 'package:expanse_tracker_app/Screens/Pages/expanse/totalExpanse.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:snapbilling/Screens/Pages/expanse/Category_breakdown_screen.dart';
+import 'package:snapbilling/Screens/Pages/expanse/totalExpanse.dart';
 
 // ==== COLOR CONSTANTS ====
 const Color kAppBarColor = Color(0xFF1565C0); // Deep Blue
