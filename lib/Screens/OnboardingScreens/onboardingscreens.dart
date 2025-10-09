@@ -1,11 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:snapbilling/Screens/Auth_moduls/LoginRequriedPage.dart';
-import 'package:snapbilling/Screens/Pages/expanse/Category_breakdown_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -21,20 +20,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<Map<String, String>> onboardingData = [
     {
-      "title": "Note Down Expenses",
-      "description": "Daily note your expenses to help manage money",
+      "title": "Track Smarter",
+      "description": "Note your daily income & expenses effortlessly.",
       "image": "assets/animation_assets/Business Growth.json",
     },
     {
-      "title": "Simple Money Management",
-      "description":
-          "Get your notifications or alert when you do the over expenses",
+      "title": "AI Money Insights",
+      "description": "Get AI-powered spending tips and smart alerts.",
       "image": "assets/animation_assets/growth.json",
     },
     {
-      "title": "Easy to Track and Analyze",
-      "description":
-          "Tracking your expense helps make sure you don't overspend",
+      "title": "Plan Your Future",
+      "description": "Achieve goals faster with automated budgeting tools.",
       "image": "assets/animation_assets/increment.json",
     },
   ];
@@ -42,121 +39,147 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _controller,
+                  itemCount: onboardingData.length,
+                  onPageChanged: (index) {
+                    setState(() => _currentIndex = index);
+                  },
+                  itemBuilder: (_, index) {
+                    final item = onboardingData[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 30),
+                          // Lottie animation
+                          Animate(
+                            effects: [
+                              FadeEffect(duration: 800.ms),
+                              MoveEffect(
+                                begin: const Offset(0, 20),
+                                end: Offset.zero,
+                              ),
+                            ],
+                            child: Lottie.asset(item['image']!, height: 250),
+                          ),
+
+                          const SizedBox(height: 40),
+
+                          // Title
+                          Text(
+                                item['title']!,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  letterSpacing: 1.2,
+                                ),
+                              )
+                              .animate()
+                              .fadeIn(delay: 300.ms, duration: 900.ms)
+                              .moveY(begin: 20, end: 0),
+
+                          const SizedBox(height: 12),
+
+                          // Description
+                          Text(
+                                item['description']!,
+                                style: GoogleFonts.roboto(
+                                  fontSize: 15,
+                                  color: Colors.white70,
+                                  height: 1.4,
+                                ),
+                                textAlign: TextAlign.center,
+                              )
+                              .animate()
+                              .fadeIn(delay: 600.ms, duration: 800.ms)
+                              .slideY(begin: 0.3, end: 0),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // Smooth Page Indicator
+              SmoothPageIndicator(
                 controller: _controller,
-                itemCount: onboardingData.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemBuilder: (_, index) {
-                  final item = onboardingData[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 40),
-                        // Lottie animation
-                        Lottie.asset(item['image']!, height: 250),
-                        const SizedBox(height: 40),
-                        Text(
-                              item['title']!,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: kHeadingTextColor, // Updated
-                                letterSpacing: 1.2,
-                              ),
-                              textAlign: TextAlign.center,
-                            )
-                            .animate()
-                            .fadeIn(delay: 300.ms, duration: 900.ms)
-                            .moveY(begin: 20, end: 0),
-                        const SizedBox(height: 12),
-                        Text(
-                              item['description']!,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: kSubtitleTextColor, // Updated
-                              ),
-                              textAlign: TextAlign.center,
-                            )
-                            .animate()
-                            .fadeIn(delay: 600.ms, duration: 800.ms)
-                            .slideY(begin: 0.3, end: 0),
-                      ],
-                    ),
-                  );
-                },
+                count: onboardingData.length,
+                effect: const ExpandingDotsEffect(
+                  activeDotColor: Color(0xFF00C6FF),
+                  dotColor: Colors.white38,
+                  dotHeight: 8,
+                  dotWidth: 8,
+                  spacing: 6,
+                  expansionFactor: 3,
+                ),
               ),
-            ),
+              const SizedBox(height: 30),
 
-            // Smooth Page Indicator
-            SmoothPageIndicator(
-              controller: _controller,
-              count: onboardingData.length,
-              effect: WormEffect(
-                activeDotColor: kButtonPrimary, // Updated
-                dotColor: kFadedTextColor, // Updated
-                dotHeight: 8,
-                dotWidth: 8,
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            // LET'S GO button or spinner
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: isLoading
-                  ? SpinKitCircle(color: kButtonPrimary, size: 40) // Updated
-                  : ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kButtonPrimary, // Updated
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+              // LET'S GO button or spinner
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: isLoading
+                    ? const SpinKitThreeBounce(color: Colors.white, size: 25)
+                    : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00C6FF),
+                          minimumSize: const Size(double.infinity, 52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          shadowColor: Colors.blueAccent.withOpacity(0.5),
+                          elevation: 6,
                         ),
-                        elevation: 6,
-                        shadowColor: kAppBarColor, // Updated
-                      ),
-                      onPressed: () async {
-                        if (_currentIndex < onboardingData.length - 1) {
-                          _controller.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        } else {
-                          setState(() => isLoading = true);
-                          await Future.delayed(const Duration(seconds: 2));
-
-                          if (mounted) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LoginRequiredPage(),
-                              ),
+                        onPressed: () async {
+                          if (_currentIndex < onboardingData.length - 1) {
+                            _controller.nextPage(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeInOut,
                             );
+                          } else {
+                            setState(() => isLoading = true);
+                            await Future.delayed(const Duration(seconds: 2));
+                            if (mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginRequiredPage(),
+                                ),
+                              );
+                            }
                           }
-                        }
-                      },
-                      child: const Text(
-                        "LET'S GO",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: kButtonPrimaryText, // Updated
-                          fontWeight: FontWeight.bold,
+                        },
+                        child: Text(
+                          _currentIndex == onboardingData.length - 1
+                              ? "Get Started"
+                              : "Next",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-            ),
-            const SizedBox(height: 20),
-          ],
+              ),
+              const SizedBox(height: 25),
+            ],
+          ),
         ),
       ),
     );
