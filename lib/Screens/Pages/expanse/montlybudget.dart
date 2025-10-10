@@ -1,44 +1,46 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:snapbilling/Screens/Pages/Update_income/Incomescreen.dart';
 import 'package:snapbilling/Screens/Pages/expanse/Category_breakdown_screen.dart';
 import 'package:snapbilling/Screens/Pages/expanse/totalExpanse.dart';
 
 // ==== COLOR CONSTANTS ====
-const Color kAppBarColor = Color(0xFF1565C0); // Deep Blue
-const Color kAppBarTextColor = Colors.white; // White text
+const Color kAppBarColor = Color(0xFF1565C0);
+const Color kAppBarTextColor = Colors.white;
 
-const Color kBalanceCardColor = Color(0xFFFFD700); // Gold
-const Color kBalanceCardTextColor = Colors.black; // Black text on gold
+const Color kBalanceCardColor = Color(0xFFFFD700);
+const Color kBalanceCardTextColor = Colors.black;
 
-const Color kCardColor = Colors.white; // White background
-const Color kCardTextColor = Colors.black87; // Dark text
+const Color kCardColor = Colors.white;
+const Color kCardTextColor = Colors.black87;
 
-const Color kHeadingTextColor = Color(0xFF0D47A1); // Dark Blue heading
-const Color kSubtitleTextColor = Colors.black87; // Subtitles
-const Color kBodyTextColor = Colors.black54; // Regular body text
-const Color kFadedTextColor = Colors.grey; // Faded/secondary
+const Color kHeadingTextColor = Color(0xFF0D47A1);
+const Color kSubtitleTextColor = Colors.black87;
+const Color kBodyTextColor = Colors.black54;
+const Color kFadedTextColor = Colors.grey;
 
-const Color kButtonPrimary = Color(0xFF1565C0); // Deep Blue background
-const Color kButtonPrimaryText = Colors.white; // White text
+const Color kButtonPrimary = Color(0xFF1565C0);
+const Color kButtonPrimaryText = Colors.white;
 
-const Color kButtonSecondaryBorder = Color(0xFFFFD700); // Gold border
-const Color kButtonSecondaryText = Color(0xFF1565C0); // Blue text
+const Color kButtonSecondaryBorder = Color(0xFFFFD700);
+const Color kButtonSecondaryText = Color(0xFF1565C0);
 
-const Color kButtonDisabled = Color(0xFFBDBDBD); // Gray background
-const Color kButtonDisabledText = Color(0xFF757575); // Light gray text
+const Color kButtonDisabled = Color(0xFFBDBDBD);
+const Color kButtonDisabledText = Color(0xFF757575);
 
-// Custom category colors for Pie Chart
 const Map<String, Color> kCategoryColors = {
-  'food': Color(0xFFFFB74D), // Orange
-  'transport': Color(0xFF4FC3F7), // Light Blue
-  'shopping': Color(0xFF81C784), // Light Green
-  'entertainment': Color(0xFFE57373), // Red
-  'bills': Color(0xFFFFD54F), // Yellow
-  'health': Color(0xFFBA68C8), // Purple
-  'other': Color(0xFF90A4AE), // Grey Blue
+  'food': Color(0xFFFF8A65),
+  'transport': Color(0xFF4FC3F7),
+  'shopping': Color(0xFF81C784),
+  'entertainment': Color(0xFFE57373),
+  'bills': Color(0xFFFFD54F),
+  'health': Color(0xFFBA68C8),
+  'other': Color(0xFF90A4AE),
 };
 
 class BudgetScreen extends StatefulWidget {
@@ -67,7 +69,6 @@ class _BudgetScreenState extends State<BudgetScreen>
         final amount = (exp['amount'] ?? 0).toDouble();
         totals[category] = (totals[category] ?? 0) + amount;
       }
-
       setState(() {
         categoryTotals = totals;
         isLoading = false;
@@ -106,12 +107,16 @@ class _BudgetScreenState extends State<BudgetScreen>
         color: getColor(entry.key),
         value: entry.value,
         title: '${percentage.toStringAsFixed(1)}%',
-        radius: isTouched ? 70 : 60,
-        titleStyle: const TextStyle(
+        radius: isTouched ? 72 : 60,
+        titleStyle: GoogleFonts.poppins(
           fontSize: 14,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
+        badgeWidget: isTouched
+            ? Icon(Icons.star, color: Colors.yellowAccent, size: 20)
+            : null,
+        badgePositionPercentageOffset: 1.2,
       );
     }).toList();
   }
@@ -124,32 +129,45 @@ class _BudgetScreenState extends State<BudgetScreen>
   Widget build(BuildContext context) {
     final hasData = categoryTotals.isNotEmpty;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Monthly Budget Overview",
-          style: TextStyle(
-            color: kAppBarTextColor,
-            fontWeight: FontWeight.bold,
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [kPrimaryDark1, kPrimaryDark2, kPrimaryDark3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        backgroundColor: kAppBarColor,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kAppBarTextColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: kAppBarTextColor),
-            onPressed: fetchCategoryData,
-          ),
-        ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: kAppBarColor))
-          : hasData
-          ? _buildBudgetOverview()
-          : _buildEmptyState(),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Text(
+            "Monthly Budget Overview",
+            style: GoogleFonts.poppins(
+              color: kAppBarTextColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: kAppBarTextColor),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, color: kAppBarTextColor),
+              onPressed: fetchCategoryData,
+            ),
+          ],
+        ),
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: kAppBarColor),
+              )
+            : hasData
+            ? _buildBudgetOverview()
+            : _buildEmptyState(),
+      ),
     );
   }
 
@@ -170,8 +188,8 @@ class _BudgetScreenState extends State<BudgetScreen>
               child: PieChart(
                 PieChartData(
                   sections: getPieChartSections(),
-                  centerSpaceRadius: 40,
-                  sectionsSpace: 2,
+                  centerSpaceRadius: 45,
+                  sectionsSpace: 4,
                   pieTouchData: PieTouchData(
                     touchCallback: (event, pieTouchResponse) {
                       setState(() {
@@ -187,12 +205,12 @@ class _BudgetScreenState extends State<BudgetScreen>
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           "Category Breakdown",
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: kHeadingTextColor,
+            color: Colors.white,
           ),
         ),
         Expanded(
@@ -214,8 +232,11 @@ class _BudgetScreenState extends State<BudgetScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isSelected
-                        ? [kButtonPrimary, Colors.teal.shade300]
-                        : [Colors.green.shade300, Colors.lightGreen.shade200],
+                        ? [
+                            Colors.redAccent.shade200,
+                            Colors.orangeAccent.shade200,
+                          ]
+                        : [Colors.blue.shade200, Colors.lightBlue.shade100],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -223,7 +244,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
-                      blurRadius: isSelected ? 10 : 6,
+                      blurRadius: isSelected ? 12 : 6,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -236,8 +257,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                   ),
                   title: Text(
                     entry.key,
-                    style: TextStyle(
-                      color: kButtonPrimaryText,
+                    style: GoogleFonts.poppins(
+                      color: kCardTextColor,
                       fontSize: isSelected ? 18 : 16,
                       fontWeight: isSelected
                           ? FontWeight.bold
@@ -246,7 +267,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                   ),
                   trailing: Text(
                     '${percentage.toStringAsFixed(1)}%',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: isSelected ? 16 : 14,
                       color: getColor(entry.key),
                       fontWeight: FontWeight.bold,
@@ -290,7 +311,7 @@ class _BudgetScreenState extends State<BudgetScreen>
             const SizedBox(height: 20),
             Text(
               isGuest ? "Welcome, Guest!" : "No Budget Data Yet!",
-              style: const TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: kCardTextColor,
@@ -302,7 +323,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                   ? "Start adding your expenses to see your spending breakdown."
                   : "Set up your budget and start tracking your expenses today.",
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: kBodyTextColor),
+              style: GoogleFonts.poppins(fontSize: 16, color: kBodyTextColor),
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
@@ -310,18 +331,24 @@ class _BudgetScreenState extends State<BudgetScreen>
               icon: const Icon(Icons.add, color: kButtonPrimaryText),
               label: Text(
                 isGuest ? "Add Your First Expense" : "Set Up Budget",
-                style: const TextStyle(fontSize: 16, color: kButtonPrimaryText),
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: kButtonPrimaryText,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kButtonPrimary,
                 foregroundColor: kButtonPrimaryText,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
+                  horizontal: 24,
+                  vertical: 14,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
+                elevation: 8,
+                shadowColor: kButtonPrimary.withOpacity(0.5),
               ),
             ),
           ],

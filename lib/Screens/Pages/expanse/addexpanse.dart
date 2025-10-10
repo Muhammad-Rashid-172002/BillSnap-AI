@@ -4,9 +4,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:snapbilling/Screens/Pages/expanse/Category_breakdown_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:snapbilling/Screens/Pages/Update_income/Incomescreen.dart';
 
-/// Temporary storage for guest users (global list)
 List<Map<String, dynamic>> guestExpenses = [];
 
 class AddExpenseScreen extends StatefulWidget {
@@ -85,9 +85,21 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
     if (title.isEmpty || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('⚠️ Please enter a valid title and amount'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          content: Text(
+            '⚠️ Please enter a valid title and amount',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          backgroundColor: const Color(0xFFFF4B2B),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
         ),
       );
       return;
@@ -112,7 +124,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
     try {
       if (widget.isGuest || user == null) {
-        // Guest Mode → Save locally
         if (widget.docId != null) {
           final idx = guestExpenses.indexWhere(
             (exp) => exp['docId'] == widget.docId,
@@ -127,9 +138,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             a['timestamp'] as Timestamp,
           ),
         );
-
         widget.onExpenseAdded?.call(newExpense);
-
         Navigator.pop(context, newExpense);
       } else {
         final userDoc = FirebaseFirestore.instance
@@ -149,183 +158,31 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         }
 
         widget.onExpenseAdded?.call(newExpense);
-
         Navigator.pop(context, newExpense);
       }
     } catch (e) {
       debugPrint("❌ Error saving expense: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to save expense'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          content: Text(
+            '❌ Failed to save expense',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          backgroundColor: const Color(0xFFFF4B2B),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
         ),
       );
     } finally {
       setState(() => isLoading = false);
     }
-  }
-
-  InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: TextStyle(color: kSubtitleTextColor),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: kCardTextColor),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: kButtonPrimary, width: 2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          widget.existingData != null ? "Edit Expense" : "Add Expense",
-          style: const TextStyle(color: kAppBarTextColor),
-        ),
-        centerTitle: true,
-        backgroundColor: kAppBarColor,
-        elevation: 3,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Date Picker
-              GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: selectedDate,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) setState(() => selectedDate = picked);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.calendar_today, color: kButtonPrimary),
-                    const SizedBox(width: 8),
-                    Text(
-                      DateFormat('dd MMM yyyy').format(selectedDate),
-                      style: const TextStyle(color: Colors.black, fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 22),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      controller: titleController,
-                      label: "Expense Title",
-                      icon: Icons.title,
-                    ),
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                      controller: amountController,
-                      label: "Amount",
-                      icon: Icons.attach_money,
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      decoration: _boxDecoration(),
-                      child: DropdownButtonFormField<String>(
-                        value: selectedCategory,
-                        dropdownColor: kBalanceCardColor,
-                        style: const TextStyle(
-                          color: kCardTextColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        iconEnabledColor: kButtonPrimary,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => selectedCategory = value);
-                          }
-                        },
-                        items: categories.map((cat) {
-                          return DropdownMenuItem(
-                            value: cat,
-                            child: Row(
-                              children: [
-                                Icon(categoryIcons[cat], color: kButtonPrimary),
-                                const SizedBox(width: 8),
-                                Text(
-                                  cat,
-                                  style: const TextStyle(
-                                    color: kCardTextColor,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        decoration: InputDecoration(
-                          labelText: "Category",
-                          labelStyle: TextStyle(color: kHeadingTextColor),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 18,
-                            horizontal: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          elevation: 6,
-                          shadowColor: kBalanceCardColor,
-                          backgroundColor: kButtonPrimary,
-                        ),
-                        onPressed: isLoading ? null : _submitExpense,
-                        child: isLoading
-                            ? const SpinKitFadingCircle(
-                                color: kButtonPrimaryText,
-                                size: 28,
-                              )
-                            : Text(
-                                widget.existingData != null
-                                    ? "SAVE CHANGES"
-                                    : "ADD EXPENSE",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: kButtonPrimaryText,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildTextField({
@@ -335,18 +192,28 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     TextInputType keyboardType = TextInputType.text,
   }) {
     return Container(
-      decoration: _boxDecoration(),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(
-          color: kCardTextColor,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
           fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: kHeadingTextColor),
-          prefixIcon: Icon(icon, color: kButtonPrimary),
+          labelStyle: GoogleFonts.poppins(color: Colors.white70),
+          prefixIcon: Icon(icon, color: Colors.redAccent),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide.none,
@@ -360,17 +227,204 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
-  BoxDecoration _boxDecoration() {
-    return BoxDecoration(
-      color: kBalanceCardColor.withOpacity(0.2),
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        BoxShadow(
-          color: kBalanceCardColor.withOpacity(0.3),
-          blurRadius: 8,
-          offset: const Offset(0, 4),
+  Widget _buildCalendar() {
+    return GestureDetector(
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: selectedDate,
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
+          builder: (context, child) {
+            return Theme(
+              data: ThemeData.light().copyWith(
+                colorScheme: const ColorScheme.light(primary: Colors.redAccent),
+                dialogBackgroundColor: Colors.white,
+              ),
+              child: child!,
+            );
+          },
+        );
+        if (picked != null) setState(() => selectedDate = picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.redAccent.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(20),
         ),
-      ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.calendar_today, color: Colors.redAccent),
+            const SizedBox(width: 10),
+            Text(
+              DateFormat('dd MMM yyyy').format(selectedDate),
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [kPrimaryDark1, kPrimaryDark2, kPrimaryDark3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.white),
+          title: Text(
+            widget.existingData != null ? "Edit Expense" : "Add Expense",
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 3,
+        ),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildCalendar(),
+                  const SizedBox(height: 22),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          controller: titleController,
+                          label: "Expense Title",
+                          icon: Icons.title,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                          controller: amountController,
+                          label: "Amount",
+                          icon: Icons.attach_money,
+                          keyboardType: TextInputType.number,
+                        ),
+                        const SizedBox(height: 20),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            value: selectedCategory,
+                            dropdownColor: Colors.white,
+                            style: GoogleFonts.poppins(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            iconEnabledColor: Colors.redAccent,
+                            onChanged: (value) {
+                              if (value != null)
+                                setState(() => selectedCategory = value);
+                            },
+                            items: categories.map((cat) {
+                              return DropdownMenuItem(
+                                value: cat,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      categoryIcons[cat],
+                                      color: Colors.redAccent,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      cat,
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            decoration: InputDecoration(
+                              labelText: "Category",
+                              labelStyle: GoogleFonts.poppins(
+                                color: Colors.white70,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide.none,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 18,
+                                horizontal: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : _submitExpense,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              backgroundColor: Colors.redAccent,
+                              elevation: 8,
+                              shadowColor: Colors.redAccent.withOpacity(0.5),
+                            ),
+                            child: isLoading
+                                ? const SpinKitFadingCircle(
+                                    color: Colors.white,
+                                    size: 28,
+                                  )
+                                : Text(
+                                    widget.existingData != null
+                                        ? "SAVE CHANGES"
+                                        : "ADD EXPENSE",
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

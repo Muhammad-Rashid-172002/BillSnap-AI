@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:snapbilling/Screens/Auth_moduls/SignInScreen.dart';
 
 // ==== COLORS ====
 const Color kAppBarColor = Color(0xFF1565C0); // Deep Blue
@@ -120,12 +122,26 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
     if (_selectedSource == null || amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-            '⚠️ Please select a valid income source and enter a positive amount.',
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          backgroundColor: const Color(
+            0xFF2C5364,
+          ), // matches your gradient tone
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          backgroundColor: Colors.redAccent,
+          content: Text(
+            '⚠️ Please select a valid income source and enter a positive amount.',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          duration: const Duration(seconds: 3),
         ),
       );
+
       return;
     }
 
@@ -147,8 +163,21 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('✅ Income saved (Guest Mode)'),
-          backgroundColor: Colors.blue,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          backgroundColor: const Color(0xFF203A43), // Deep gradient tone
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          content: Text(
+            '✅ Income saved (Guest Mode)',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          duration: const Duration(seconds: 3),
         ),
       );
 
@@ -187,16 +216,42 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
         await incomeRef.doc(widget.incomeId).update(incomeData);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('✅ Income updated successfully.'),
-            backgroundColor: Colors.blue,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            backgroundColor: const Color(0xFF0F2027), // gradient tone
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            content: Text(
+              '✅ Income updated successfully.',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            duration: const Duration(seconds: 3),
           ),
         );
       } else {
         await incomeRef.add(incomeData);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('✅ Income added successfully.'),
-            backgroundColor: Colors.blue,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            backgroundColor: const Color(0xFF203A43), // matches your gradient
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            content: Text(
+              '✅ Income added successfully.',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -207,8 +262,21 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('❌ Failed to save income: $e'),
-          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          backgroundColor: Colors.redAccent.shade700,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          content: Text(
+            '❌ Failed to save income: $e',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          duration: const Duration(seconds: 4),
         ),
       );
     }
@@ -220,46 +288,41 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              kAppBarColor.withOpacity(0.1),
-              kBalanceCardColor.withOpacity(0.2),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: kPrimaryGradient),
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             title: Text(
               widget.isEditing ? 'Edit Income' : 'Add Income',
-              style: TextStyle(
-                color: kAppBarTextColor,
-                fontWeight: FontWeight.bold,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 22,
               ),
             ),
-            iconTheme: IconThemeData(color: Colors.white),
-            backgroundColor: kAppBarColor,
+            iconTheme: const IconThemeData(color: Colors.white),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
             centerTitle: true,
-            elevation: 4,
           ),
           body: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Income Details',
-                    style: TextStyle(
-                      fontSize: 24,
+                    style: GoogleFonts.poppins(
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: kHeadingTextColor,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
+
+                  // ===== Income Source Dropdown =====
                   DropdownButtonFormField<String>(
                     value: _selectedSource,
                     items: _incomeSources.map((source) {
@@ -267,11 +330,11 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                         value: source['label'],
                         child: Row(
                           children: [
-                            Icon(source['icon'], color: kButtonPrimary),
+                            Icon(source['icon'], color: Colors.white70),
                             const SizedBox(width: 10),
                             Text(
                               source['label'],
-                              style: TextStyle(color: kBodyTextColor),
+                              style: GoogleFonts.poppins(color: Colors.white),
                             ),
                           ],
                         ),
@@ -281,56 +344,86 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                         setState(() => _selectedSource = value),
                     decoration: InputDecoration(
                       labelText: 'Select Income Source',
-                      labelStyle: TextStyle(color: kButtonPrimary),
+                      labelStyle: GoogleFonts.poppins(color: Colors.white70),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.08),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: kButtonPrimary),
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(color: Colors.white54),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: kButtonPrimary, width: 2),
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Colors.white,
+                          width: 2,
+                        ),
                       ),
                     ),
-                    dropdownColor: kCardColor,
+                    dropdownColor: const Color(0xFF1E1E2C),
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 20),
+
+                  // ===== Amount Field =====
                   TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
-                    style: TextStyle(color: kBodyTextColor),
+                    style: GoogleFonts.poppins(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: 'Enter Amount',
-                      labelStyle: TextStyle(color: kButtonPrimary),
+                      labelStyle: GoogleFonts.poppins(color: Colors.white70),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.08),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: kButtonPrimary),
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(color: Colors.white54),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: kButtonPrimary, width: 2),
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Colors.white,
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+
+                  const SizedBox(height: 30),
+
+                  // ===== Save Button or Loader =====
                   _isLoading
-                      ? SpinKitFadingCircle(color: kButtonPrimary, size: 40)
+                      ? const SpinKitFadingCircle(color: Colors.white, size: 45)
                       : ElevatedButton.icon(
                           onPressed: _saveIncome,
-                          icon: const Icon(Icons.save),
+                          icon: const Icon(Icons.save, color: Colors.white),
                           label: Text(
                             widget.isEditing ? 'Update Income' : 'Save Income',
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: kButtonPrimary,
-                            foregroundColor: kButtonPrimaryText,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
                             ),
                           ),
+                          style:
+                              ElevatedButton.styleFrom(
+                                backgroundColor: Colors.tealAccent.withOpacity(
+                                  0.35,
+                                ),
+                                shadowColor: Colors.tealAccent.withOpacity(0.6),
+                                elevation: 8,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 42,
+                                  vertical: 15,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ).copyWith(
+                                overlayColor: WidgetStateProperty.all(
+                                  Colors.tealAccent.withOpacity(0.2),
+                                ),
+                              ),
                         ),
                 ],
               ),

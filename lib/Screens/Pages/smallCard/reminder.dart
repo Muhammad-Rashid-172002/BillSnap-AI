@@ -1,22 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-   
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
-import 'package:snapbilling/Screens/Pages/expanse/Category_breakdown_screen.dart';
-import 'package:snapbilling/Screens/Pages/smallCard/addreminderscreen.dart' hide kFadedTextColor, kButtonPrimary, kCardColor, kAppBarTextColor, kAppBarColor, kCardTextColor;
+import 'package:google_fonts/google_fonts.dart';
+import 'package:snapbilling/Screens/Pages/smallCard/addreminderscreen.dart';
 
-/// Temporary storage for guest reminders (in-memory)
+/// Guest reminder storage
 class GuestReminderStore {
   static final List<Map<String, dynamic>> _reminders = [];
 
   static List<Map<String, dynamic>> get reminders =>
-      List<Map<String, dynamic>>.from(_reminders)..sort(
-        (a, b) =>
-            (a['dateTime'] as DateTime).compareTo(b['dateTime'] as DateTime),
-      );
+      List<Map<String, dynamic>>.from(_reminders)
+        ..sort((a, b) => (a['dateTime'] as DateTime)
+            .compareTo(b['dateTime'] as DateTime));
 
   static void addReminder({
     required String title,
@@ -53,6 +50,13 @@ class GuestReminderStore {
   }
 }
 
+// COLORS
+const kPrimaryGradient1 = Color(0xFF0F2027);
+const kPrimaryGradient2 = Color(0xFF203A43);
+const kPrimaryGradient3 = Color(0xFF2C5364);
+const kAccentColor = Color(0xFF00BCD4); // Bright cyan
+const kBodyTextColor = Colors.white70;
+
 class Reminderscreen extends StatefulWidget {
   const Reminderscreen({super.key});
 
@@ -64,10 +68,9 @@ class _ReminderscreenState extends State<Reminderscreen> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   bool _isLoading = false;
 
-  // Firestore helpers
   Future<void> _deleteReminder(String id) async {
     final uid = currentUser?.uid;
-    if (uid == null) return; // Guest: ignore
+    if (uid == null) return;
     await FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
@@ -103,249 +106,42 @@ class _ReminderscreenState extends State<Reminderscreen> {
     );
   }
 
-  //  Guest mode: add/edit dialog
-  Future<void> _openGuestReminderDialog({Map<String, dynamic>? initial}) async {
-    final titleCtrl = TextEditingController(text: initial?['title'] ?? '');
-    final descCtrl = TextEditingController(text: initial?['description'] ?? '');
-    DateTime selectedDateTime =
-        (initial?['dateTime'] as DateTime?) ?? DateTime.now();
-
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setModal) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: kFadedTextColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    initial == null ? 'Add Reminder (Guest)' : 'Edit Reminder',
-                    style: const TextStyle(
-                      color: kHeadingTextColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: titleCtrl,
-                    style: const TextStyle(color: kBodyTextColor),
-                    decoration: InputDecoration(
-                      labelText: 'Title',
-                      labelStyle: const TextStyle(color: kSubtitleTextColor),
-                      filled: true,
-                      fillColor: kBalanceCardColor.withOpacity(0.3),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: descCtrl,
-                    maxLines: 2,
-                    style: const TextStyle(color: kBodyTextColor),
-                    decoration: InputDecoration(
-                      labelText: 'Description',
-                      labelStyle: const TextStyle(color: kSubtitleTextColor),
-                      filled: true,
-                      fillColor: kBalanceCardColor.withOpacity(0.3),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: kBalanceCardColor.withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: kButtonSecondaryBorder),
-                          ),
-                          child: Text(
-                            DateFormat.yMMMd().add_jm().format(
-                              selectedDateTime,
-                            ),
-                            style: const TextStyle(color: kBodyTextColor),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: selectedDateTime,
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                            builder: (_, child) => Theme(
-                              data: Theme.of(context).copyWith(
-                                colorScheme: const ColorScheme.light(
-                                  primary: kButtonPrimary,
-                                  surface: Colors.white,
-                                  onSurface: Colors.black,
-                                ),
-                              ),
-                              child: child!,
-                            ),
-                          );
-                          if (date == null) return;
-                          final time = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.fromDateTime(
-                              selectedDateTime,
-                            ),
-                            builder: (_, child) => Theme(
-                              data: Theme.of(context).copyWith(
-                                colorScheme: const ColorScheme.light(
-                                  primary: kButtonPrimary,
-                                  surface: Colors.white,
-                                  onSurface: Colors.black,
-                                ),
-                              ),
-                              child: child!,
-                            ),
-                          );
-                          if (time == null) return;
-                          final dt = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            time.hour,
-                            time.minute,
-                          );
-                          setModal(() => selectedDateTime = dt);
-                        },
-                        icon: const Icon(Icons.schedule, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kButtonPrimary,
-                        ),
-                        label: const Text('Pick Date & Time'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        final title = titleCtrl.text.trim();
-                        final desc = descCtrl.text.trim();
-                        if (title.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Title cannot be empty'),
-                            ),
-                          );
-                          return;
-                        }
-                        if (initial == null) {
-                          GuestReminderStore.addReminder(
-                            title: title,
-                            description: desc,
-                            dateTime: selectedDateTime,
-                          );
-                        } else {
-                          GuestReminderStore.editReminder(
-                            id: initial['id'] as String,
-                            title: title,
-                            description: desc,
-                            dateTime: selectedDateTime,
-                          );
-                        }
-                        Navigator.pop(context);
-                        setState(() {}); // refresh list
-                      },
-                      icon: const Icon(Icons.save, color: Colors.white),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kButtonPrimary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      label: Text(initial == null ? 'Save Reminder' : 'Update'),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _confirmDeleteReminder(
-    String reminderId, {
-    bool isGuest = false,
-  }) async {
+  Future<void> _confirmDeleteReminder(String reminderId,
+      {bool isGuest = false}) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: kCardColor,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
+        title: Text(
           "Delete Reminder",
-          style: TextStyle(color: kButtonPrimary, fontWeight: FontWeight.bold),
+          style: GoogleFonts.poppins(
+              color: Colors.redAccent, fontWeight: FontWeight.bold),
         ),
-        content: const Text(
+        content: Text(
           "Are you sure you want to delete this reminder?",
-          style: TextStyle(color: kBodyTextColor),
+          style: GoogleFonts.poppins(color: Colors.black87),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             style: TextButton.styleFrom(
-              backgroundColor: kBalanceCardColor.withOpacity(0.3),
+              backgroundColor: Colors.grey[200],
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+                  borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text(
-              "Cancel",
-              style: TextStyle(color: kButtonSecondaryText),
-            ),
+            child: Text("Cancel",
+                style: GoogleFonts.poppins(color: Colors.black)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
-              backgroundColor: Colors.deepOrange,
+              backgroundColor: Colors.redAccent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+                  borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text("Delete", style: TextStyle(color: Colors.white)),
+            child: Text("Delete",
+                style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),
@@ -361,9 +157,10 @@ class _ReminderscreenState extends State<Reminderscreen> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Reminder deleted"),
-            backgroundColor: kButtonPrimary,
+          SnackBar(
+            content: Text("Reminder deleted",
+                style: GoogleFonts.poppins(color: Colors.white)),
+            backgroundColor: Colors.redAccent,
           ),
         );
       }
@@ -375,47 +172,63 @@ class _ReminderscreenState extends State<Reminderscreen> {
     final bool isGuest = currentUser == null;
 
     return Scaffold(
+      backgroundColor: kPrimaryGradient1,
       appBar: AppBar(
         title: Text(
           "Reminders",
-          style: TextStyle(
-            color: kAppBarTextColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
+          style: GoogleFonts.poppins(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+
+      //  _isLoading ? null : (isGuest ? () => {} : _navigateToAddReminder),
+
+      floatingActionButton: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0F2027), Color(0xFF2C5364)],
+
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black87,
+                blurRadius: 12,
+                offset: Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.white10,
+                blurRadius: 4,
+                offset: Offset(-2, -2),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            elevation: 0,
+            backgroundColor:
+                Colors.transparent, // Gradient handled by parent container
+            tooltip: 'Add Income',
+            onPressed:(isGuest ? () => {} : _navigateToAddReminder),
+            child: const Icon(Icons.add_rounded, size: 30, color: Colors.white),
           ),
         ),
-        backgroundColor: kAppBarColor,
-        elevation: 4,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kAppBarTextColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: kButtonPrimary,
-        tooltip: 'Add Reminder',
-        onPressed: _isLoading
-            ? null
-            : (isGuest
-                  ? () => _openGuestReminderDialog()
-                  : _navigateToAddReminder),
-        child: _isLoading
-            ? const SpinKitCircle(color: Colors.white, size: 24)
-            : const Icon(Icons.add, color: kCardTextColor),
-      ),
       body: isGuest ? _buildGuestList() : _buildFirestoreList(currentUser!.uid),
     );
   }
 
-  // ---------- Guest list ----------
   Widget _buildGuestList() {
     final reminders = GuestReminderStore.reminders;
     if (reminders.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          "No reminders added yet (Guest).",
-          style: TextStyle(color: kBodyTextColor),
+          "No reminders yet (Guest).",
+          style: GoogleFonts.poppins(color: kBodyTextColor, fontSize: 16),
         ),
       );
     }
@@ -427,72 +240,18 @@ class _ReminderscreenState extends State<Reminderscreen> {
         final reminder = reminders[index];
         final date = reminder['dateTime'] as DateTime;
 
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [kButtonPrimary.withOpacity(0.7), Colors.green.shade700],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Card(
-            color: Colors.transparent,
-            elevation: 3,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.white.withOpacity(0.2), width: 1),
-            ),
-            child: ListTile(
-              leading: const Icon(Icons.alarm, color: Colors.white),
-              title: Text(
-                reminder['title'] as String,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              subtitle: Text(
-                "${reminder['description'] ?? ''}\n${DateFormat.yMMMd().add_jm().format(date)}",
-                style: const TextStyle(color: Colors.white70),
-              ),
-              isThreeLine: true,
-              trailing: PopupMenuButton<String>(
-                color: kButtonPrimary,
-                icon: const Icon(Icons.more_vert, color: Colors.white),
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    _openGuestReminderDialog(initial: reminder);
-                  } else if (value == 'delete') {
-                    _confirmDeleteReminder(
-                      reminder['id'] as String,
-                      isGuest: true,
-                    );
-                  }
-                },
-                itemBuilder: (context) => const [
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: Text('Edit', style: TextStyle(color: Colors.white)),
-                  ),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Text(
-                      'Delete',
-                      style: TextStyle(color: Colors.redAccent),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        return _reminderCard(
+          title: reminder['title'],
+          description: reminder['description'],
+          date: date,
+          onEdit: () => {},
+          onDelete: () =>
+              _confirmDeleteReminder(reminder['id'] as String, isGuest: true),
         );
       },
     );
   }
 
-  // ---------- Firestore list ----------
   Widget _buildFirestoreList(String uid) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -503,14 +262,15 @@ class _ReminderscreenState extends State<Reminderscreen> {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: SpinKitCircle(color: kButtonPrimary));
+          return const Center(child: SpinKitCircle(color: Colors.white));
+
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
-              "No reminders added yet.",
-              style: TextStyle(color: kBodyTextColor),
+              "No reminders yet.",
+              style: GoogleFonts.poppins(color: kBodyTextColor, fontSize: 16),
             ),
           );
         }
@@ -524,69 +284,69 @@ class _ReminderscreenState extends State<Reminderscreen> {
             final reminder = reminders[index];
             final date = (reminder['dateTime'] as Timestamp).toDate();
 
-            return Card(
-              color: Colors.transparent,
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Colors.white24),
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [kButtonPrimary, Colors.green],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  leading: const Icon(Icons.alarm, color: Colors.white),
-                  title: Text(
-                    reminder['title'],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    "${reminder['description']}\n${DateFormat.yMMMd().add_jm().format(date)}",
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  isThreeLine: true,
-                  trailing: PopupMenuButton<String>(
-                    color: kButtonPrimary,
-                    icon: const Icon(Icons.more_vert, color: Colors.white),
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        _editReminder(reminder);
-                      } else if (value == 'delete') {
-                        _confirmDeleteReminder(reminder.id);
-                      }
-                    },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Text(
-                          'Edit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text(
-                          'Delete',
-                          style: TextStyle(color: Colors.redAccent),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            return _reminderCard(
+              title: reminder['title'],
+              description: reminder['description'],
+              date: date,
+              onEdit: () => _editReminder(reminder),
+              onDelete: () => _confirmDeleteReminder(reminder.id),
             );
           },
         );
       },
+    );
+  }
+
+  Widget _reminderCard({
+    required String title,
+    required String description,
+    required DateTime date,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [kPrimaryGradient2, kPrimaryGradient3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black26, blurRadius: 8, offset: const Offset(0, 4))
+        ],
+      ),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        leading: const Icon(Icons.alarm, color: Colors.amberAccent, size: 28),
+        title: Text(title,
+            style: GoogleFonts.poppins(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+        subtitle: Text("$description\n${DateFormat.yMMMd().add_jm().format(date)}",
+            style: GoogleFonts.poppins(color: kBodyTextColor, fontSize: 14)),
+        isThreeLine: true,
+        trailing: PopupMenuButton<String>(
+          color: kAccentColor,
+          icon: const Icon(Icons.more_vert, color: Colors.black),
+          onSelected: (value) {
+            if (value == 'edit') {
+              onEdit();
+            } else if (value == 'delete') {
+              onDelete();
+            }
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem(value: 'edit', child: Text('Edit')),
+            PopupMenuItem(
+              value: 'delete',
+              child: Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

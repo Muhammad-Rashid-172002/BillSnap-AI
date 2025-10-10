@@ -7,24 +7,15 @@ import 'package:intl/intl.dart';
 import 'package:snapbilling/Screens/Pages/Update_income/AddIncomescreen.dart';
 
 // ==== COLORS ====
-const Color kAppBarColor = Color(0xFF1565C0); // Deep Blue
-const Color kAppBarTextColor = Colors.white; // White text
-const Color kBalanceCardColor = Color(0xFFFFD700); // Gold
-const Color kBalanceCardTextColor = Colors.black; // Black text on gold
-const Color kCardColor = Colors.white; // White background
-const Color kCardTextColor = Colors.black87; // Dark text
-const Color kHeadingTextColor = Color(0xFF0D47A1); // Dark Blue heading
-const Color kSubtitleTextColor = Colors.black87; // Subtitles
-const Color kBodyTextColor = Colors.black54; // Regular body text
-const Color kFadedTextColor = Colors.grey; // Faded/secondary
-const Color kButtonPrimary = Color(0xFF1565C0); // Deep Blue background
-const Color kButtonPrimaryText = Colors.white; // White text
-const Color kButtonSecondaryBorder = Color(0xFFFFD700); // Gold border
-const Color kButtonSecondaryText = Color(0xFF1565C0); // Blue text
-const Color kButtonDisabled = Color(0xFFBDBDBD); // Gray background
-const Color kButtonDisabledText = Color(0xFF757575); // Light gray text
+const Color kPrimaryDark1 = Color(0xFF0F2027);
+const Color kPrimaryDark2 = Color(0xFF203A43);
+const Color kPrimaryDark3 = Color(0xFF2C5364);
+const Color kButtonPrimary = Color(0xFF1565C0);
+const Color kButtonPrimaryText = Colors.white;
+const Color kCardTextColor = Colors.white;
+const Color kBodyTextColor = Colors.white70;
+const Color kFadedTextColor = Colors.grey;
 
-/// ✅ Guest Income Store (local-only)
 class GuestIncomeStore {
   static final List<Map<String, dynamic>> _incomes = [];
 
@@ -79,7 +70,7 @@ class IncomeScreen extends StatefulWidget {
 }
 
 class _IncomeScreenState extends State<IncomeScreen> {
-  String? userId; // null = guest mode
+  String? userId;
 
   @override
   void initState() {
@@ -92,27 +83,31 @@ class _IncomeScreenState extends State<IncomeScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: kCardColor,
+        backgroundColor: kPrimaryDark2,
         title: Text(
           'Delete Income',
-          style: TextStyle(fontWeight: FontWeight.bold, color: kCardTextColor),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: kButtonPrimaryText,
+            fontSize: 20,
+          ),
         ),
         content: Text(
           'Are you sure you want to delete this income?',
-          style: TextStyle(color: kBodyTextColor),
+          style: GoogleFonts.roboto(color: kBodyTextColor, fontSize: 16),
         ),
         actions: [
           TextButton(
             style: TextButton.styleFrom(foregroundColor: kFadedTextColor),
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.roboto()),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
+            child: Text(
               'Delete',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: GoogleFonts.roboto(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -132,12 +127,26 @@ class _IncomeScreenState extends State<IncomeScreen> {
             .doc(id)
             .delete();
       }
+
+      // Show SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Income deleted successfully!',
+            style: GoogleFonts.roboto(fontWeight: FontWeight.w500),
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     }
   }
 
   void _editIncome(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -148,9 +157,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
           initialDate: (data['createdAt'] as Timestamp?)?.toDate(),
           isEditing: true,
           isGuest: false,
-          onIncomeAdded: (title, amount) {
-            setState(() {});
-          },
+          onIncomeAdded: (title, amount) => setState(() {}),
         ),
       ),
     );
@@ -211,7 +218,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, Color(0xFFE8F5E9)],
+          colors: [kPrimaryDark1, kPrimaryDark2, kPrimaryDark3],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -219,28 +226,52 @@ class _IncomeScreenState extends State<IncomeScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: kAppBarColor,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: kAppBarTextColor),
+            icon: const Icon(Icons.arrow_back, color: kButtonPrimaryText),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             'Income',
             style: GoogleFonts.playfairDisplay(
-              color: kAppBarTextColor,
+              color: kButtonPrimaryText,
               fontSize: 22,
               fontWeight: FontWeight.w600,
             ),
           ),
           centerTitle: true,
-          elevation: 0,
         ),
         body: userId == null ? _buildGuestView() : _buildFirebaseView(),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: kButtonPrimary,
-          tooltip: 'Add Income',
-          onPressed: _openAddIncome,
-          child: const Icon(Icons.add, color: kButtonPrimaryText),
+        floatingActionButton: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0F2027), Color(0xFF2C5364)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black87,
+                blurRadius: 12,
+                offset: Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.white10,
+                blurRadius: 4,
+                offset: Offset(-2, -2),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            elevation: 0,
+            backgroundColor:
+                Colors.transparent, // Gradient handled by parent container
+            tooltip: 'Add Income',
+            onPressed: _openAddIncome,
+            child: const Icon(Icons.add_rounded, size: 30, color: Colors.white),
+          ),
         ),
       ),
     );
@@ -263,7 +294,10 @@ class _IncomeScreenState extends State<IncomeScreen> {
               ? Center(
                   child: Text(
                     'No income added yet (Guest Mode)',
-                    style: TextStyle(color: kCardTextColor),
+                    style: GoogleFonts.roboto(
+                      color: kButtonPrimaryText,
+                      fontSize: 16,
+                    ),
                   ),
                 )
               : ListView.builder(
@@ -288,7 +322,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           ),
                           SlidableAction(
                             onPressed: (_) => _deleteIncome(income['id']),
-                            backgroundColor: Colors.red,
+                            backgroundColor: Colors.redAccent,
                             icon: Icons.delete,
                             label: 'Delete',
                           ),
@@ -301,51 +335,129 @@ class _IncomeScreenState extends State<IncomeScreen> {
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(color: kButtonPrimary, width: 1.5),
                         ),
+                        color: kPrimaryDark2,
                         child: Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [kButtonPrimary, Color(0xFF2E7D32)],
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF1C1F26), Color(0xFF2A2F3A)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.white12, width: 1),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black87,
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                              BoxShadow(
+                                color: Colors.white10,
+                                blurRadius: 3,
+                                offset: Offset(-2, -2),
+                              ),
+                            ],
                           ),
-                          child: ListTile(
-                            leading: const CircleAvatar(
-                              backgroundColor: Colors.white24,
-                              child: Icon(
-                                Icons.attach_money,
-                                color: Colors.white,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // ==== Left: Icon + Details ====
+                              Row(
+                                children: [
+                                  // Icon container with soft gradient background
+                                  Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFF0F2027),
+                                          Color(0xFF203A43),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(14),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.tealAccent.withOpacity(
+                                            0.3,
+                                          ),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(
+                                      Icons.attach_money_rounded,
+                                      color: Colors.tealAccent,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  // ==== Title + Date ====
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        income['title'],
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        formattedDate,
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white54,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ),
-                            title: Text(
-                              income['title'],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+
+                              // ==== Right: Amount ====
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.tealAccent.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.tealAccent.withOpacity(0.4),
+                                  ),
+                                ),
+                                child: Text(
+                                  '${income['amount']}',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.tealAccent,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
                               ),
-                            ),
-                            subtitle: Text(
-                              formattedDate,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
-                            ),
-                            trailing: Text(
-                              '${income['amount']}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
+                   
+                   
+                   
                     );
                   },
                 ),
@@ -371,8 +483,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
         double totalIncome = 0;
         for (var doc in incomeDocs) {
           final data = doc.data() as Map<String, dynamic>;
-          final amt = double.tryParse(data['amount']?.toString() ?? '0') ?? 0;
-          totalIncome += amt;
+          totalIncome +=
+              double.tryParse(data['amount']?.toString() ?? '0') ?? 0;
         }
 
         return Column(
@@ -385,7 +497,10 @@ class _IncomeScreenState extends State<IncomeScreen> {
                   ? Center(
                       child: Text(
                         'No income added yet.',
-                        style: TextStyle(color: kCardTextColor),
+                        style: GoogleFonts.roboto(
+                          color: kButtonPrimaryText,
+                          fontSize: 16,
+                        ),
                       ),
                     )
                   : ListView.builder(
@@ -415,59 +530,137 @@ class _IncomeScreenState extends State<IncomeScreen> {
                               ),
                               SlidableAction(
                                 onPressed: (_) => _deleteIncome(doc.id),
-                                backgroundColor: Colors.red,
+                                backgroundColor: Colors.redAccent,
                                 icon: Icons.delete,
                                 label: 'Delete',
                               ),
                             ],
                           ),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: BorderSide(
-                                color: kButtonPrimary,
-                                width: 1.5,
-                              ),
-                            ),
+                          child: GestureDetector(
+                            onTap: () => _editIncome(doc),
                             child: Container(
                               margin: const EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 12,
+                                horizontal: 16,
+                                vertical: 10,
                               ),
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [kButtonPrimary, Color(0xFF1B5E20)],
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF1C1F26),
+                                    Color(0xFF2A2F3A),
+                                  ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(16),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white12,
+                                  width: 1,
                                 ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black87,
+                                    blurRadius: 12,
+                                    offset: Offset(0, 6),
+                                  ),
+                                  BoxShadow(
+                                    color: Colors.white10,
+                                    blurRadius: 3,
+                                    offset: Offset(-2, -2),
+                                  ),
+                                ],
                               ),
-                              child: ListTile(
-                                leading: const Icon(
-                                  Icons.attach_money,
-                                  color: Colors.white,
-                                ),
-                                title: Text(
-                                  title,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // ==== Left side: Icon + Info ====
+                                  Row(
+                                    children: [
+                                      // Money icon in glowing box
+                                      Container(
+                                        height: 48,
+                                        width: 48,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xFF0F2027),
+                                              Color(0xFF203A43),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.tealAccent
+                                                  .withOpacity(0.3),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.attach_money_rounded,
+                                          color: Colors.tealAccent,
+                                          size: 26,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      // Title and Date
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            title,
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            formattedDate,
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white54,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                subtitle: Text(
-                                  formattedDate,
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                                trailing: Text(
-                                  amount,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+
+                                  // ==== Right side: Amount ====
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.tealAccent.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.tealAccent.withOpacity(
+                                          0.4,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      '${amount}',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.tealAccent,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                onTap: () => _editIncome(doc),
+                                ],
                               ),
                             ),
                           ),
@@ -483,40 +676,67 @@ class _IncomeScreenState extends State<IncomeScreen> {
 
   Widget _buildTotalIncomeCard(double totalIncome) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [kButtonPrimary, Color(0xFF1B5E20)],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1C1F26), Color(0xFF2A2F3A)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
           BoxShadow(
-            color: kButtonPrimary.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(4, 6),
+            color: Colors.black87,
+            blurRadius: 15,
+            offset: Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.white10,
+            blurRadius: 3,
+            offset: Offset(-2, -2),
           ),
         ],
+        border: Border.all(color: Colors.white12, width: 1.2),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            'Total Income',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.account_balance_wallet_rounded,
+                color: Colors.tealAccent.shade100,
+                size: 26,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Total Income',
+                style: GoogleFonts.poppins(
+                  color: Colors.white70,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           Text(
-            totalIncome.toStringAsFixed(2),
-            style: const TextStyle(
+            '${totalIncome.toStringAsFixed(2)}',
+            style: GoogleFonts.poppins(
               color: Colors.white,
-              fontSize: 26,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              shadows: [
+                Shadow(
+                  blurRadius: 10,
+                  color: Colors.tealAccent.withOpacity(0.5),
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
           ),
         ],

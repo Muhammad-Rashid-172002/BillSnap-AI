@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:snapbilling/Screens/Auth_moduls/LoginRequriedPage.dart';
-import 'package:snapbilling/Screens/Pages/Update_income/Incomescreen.dart';
+import 'package:snapbilling/Screens/Auth_moduls/SignInScreen.dart';
+import 'package:snapbilling/Screens/Pages/Update_income/AddIncomescreen.dart';
+import 'package:snapbilling/Screens/Pages/Update_income/Incomescreen.dart' hide GuestIncomeStore;
 import 'package:snapbilling/Screens/Pages/expanse/montlybudget.dart';
 import 'package:snapbilling/Screens/Pages/expanse/totalExpanse.dart';
 import 'package:snapbilling/Screens/Pages/smallCard/Loanscreen.dart';
@@ -195,31 +198,34 @@ class _HomePageState extends State<HomePage> {
 
       double balance = totalIncome - totalExpense;
 
-      return Column(
-        children: [
-          _buildBalanceCard(totalIncome, totalExpense),
-          const SizedBox(height: 10),
-          _buildMainCards([
-            {
-              "title": "Income",
-              "amount": "$currencySymbol${formatter.format(totalIncome)}",
-              "icon": Icons.arrow_upward,
-              "iconColor": Colors.green,
-            },
-            {
-              "title": "Expense",
-              "amount": "$currencySymbol${formatter.format(totalExpense)}",
-              "icon": Icons.arrow_downward,
-              "iconColor": Colors.red,
-            },
-            {
-              "title": "Budget",
-              "amount": "$currencySymbol${formatter.format(balance)}",
-              "icon": Icons.pie_chart,
-              "iconColor": Colors.black,
-            },
-          ]),
-        ],
+      return Container(
+        decoration: const BoxDecoration(gradient: kPrimaryGradient),
+        child: Column(
+          children: [
+            _buildBalanceCard(totalIncome, totalExpense),
+            const SizedBox(height: 10),
+            _buildMainCards([
+              {
+                "title": "Income",
+                "amount": "$currencySymbol${formatter.format(totalIncome)}",
+                "icon": Icons.arrow_upward,
+                "iconColor": Colors.green,
+              },
+              {
+                "title": "Expense",
+                "amount": "$currencySymbol${formatter.format(totalExpense)}",
+                "icon": Icons.arrow_downward,
+                "iconColor": Colors.red,
+              },
+              {
+                "title": "Budget",
+                "amount": "$currencySymbol${formatter.format(balance)}",
+                "icon": Icons.pie_chart,
+                "iconColor": Colors.black,
+              },
+            ]),
+          ],
+        ),
       );
     }
 
@@ -233,7 +239,7 @@ class _HomePageState extends State<HomePage> {
       builder: (context, incomeSnapshot) {
         if (!incomeSnapshot.hasData) {
           return const SpinKitFadingCircle(
-            color: Color(0xFFB2EBF2),
+            color: Color(0xFF424242),
             size: 40.0,
           );
         }
@@ -252,7 +258,7 @@ class _HomePageState extends State<HomePage> {
           builder: (context, expenseSnapshot) {
             if (!expenseSnapshot.hasData) {
               return const SpinKitFadingCircle(
-                color: Color(0xFFB2EBF2),
+                color: Color(0xFF424242),
                 size: 40.0,
               );
             }
@@ -300,143 +306,198 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildBalanceCard(double totalIncome, double totalExpense) {
     double balance = totalIncome - totalExpense;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        elevation: 6,
-        color: Color(0xFFFFD700),
 
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1C1F26), Color(0xFF2C313C)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.45),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "This Month Balance",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0D47A1),
+                  // ===== Top Row (Title + Visibility Button) =====
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Available Balance",
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() => _isHidden = !_isHidden);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            _isHidden
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                            color: Colors.white70,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // ===== Balance =====
+                  Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      child: Text(
+                        _isHidden
+                            ? "•••••"
+                            : "$currencySymbol${formatter.format(balance)}",
+                        key: ValueKey(_isHidden),
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 42,
+                          fontWeight: FontWeight.bold,
+                          color: balance >= 0
+                              ? Colors.greenAccent.shade400
+                              : Colors.redAccent.shade200,
+                          letterSpacing: 1.2,
+                          shadows: [
+                            Shadow(
+                              color: Colors.white.withOpacity(0.25),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      _isHidden ? Icons.visibility_off : Icons.visibility,
-                      color: Color(0xFF1565C0),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isHidden = !_isHidden;
-                      });
-                    },
+
+                  const SizedBox(height: 25),
+
+                  // ===== Income / Expense Summary =====
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatBox(
+                          title: "Income",
+                          amount: totalIncome,
+                          gradientColors: const [
+                            Color(0xFF00C853),
+                            Color(0xFF2E7D32),
+                          ],
+                          icon: Icons.arrow_downward_rounded,
+                          iconColor: Colors.greenAccent,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: _buildStatBox(
+                          title: "Expense",
+                          amount: totalExpense,
+                          gradientColors: const [
+                            Color(0xFFD32F2F),
+                            Color(0xFF880E4F),
+                          ],
+                          icon: Icons.arrow_upward_rounded,
+                          iconColor: Colors.redAccent,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Center(
-                child: Text(
-                  _isHidden
-                      ? "*****"
-                      : "$currencySymbol${formatter.format(balance)}",
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    color: balance >= 0 ? Color(0xFF1565C0) : Colors.redAccent,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Small reusable stat boxes (Income / Expense)
+  Widget _buildStatBox({
+    required String title,
+    required double amount,
+    required List<Color> gradientColors,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      height: 90,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: iconColor.withOpacity(0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(width: 10),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(
-                    onTap: () => _showAddIncomeExpenseSheet("Income"),
-                    child: Container(
-                      height: 70,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.greenAccent, Colors.green.shade700],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Income",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _isHidden
-                                ? "*****"
-                                : "$currencySymbol${formatter.format(totalIncome)}",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                const SizedBox(height: 4),
+                Text(
+                  _isHidden
+                      ? "•••••"
+                      : "$currencySymbol${formatter.format(amount)}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  GestureDetector(
-                    onTap: () => _showAddIncomeExpenseSheet("Expense"),
-                    child: Container(
-                      height: 70,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.redAccent, Colors.red.shade700],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Expense",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _isHidden
-                                ? "*****"
-                                : "$currencySymbol${formatter.format(totalExpense)}",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -459,29 +520,36 @@ class _HomePageState extends State<HomePage> {
               margin: const EdgeInsets.symmetric(horizontal: 6),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: card["title"] == "Income"
-                      ? [
-                          const Color(0xFFA5D6A7),
-                          const Color.fromARGB(255, 197, 238, 199),
-                        ]
-                      : card["title"] == "Expense"
-                      ? [
-                          const Color.fromARGB(255, 238, 196, 196),
-                          const Color.fromARGB(255, 247, 187, 187),
-                        ]
-                      : [
-                          const Color.fromARGB(255, 167, 211, 247),
-                          const Color.fromARGB(255, 185, 211, 233),
+                gradient: card["title"] == "Income"
+                    ? const LinearGradient(
+                        colors: [
+                          Color(0xFF0F2027),
+                          Color(0xFF203A43),
+                          Color(0xFF2C5364),
                         ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : card["title"] == "Expense"
+                    ? const LinearGradient(
+                        colors: [
+                          Color(0xFF2C5364),
+                          Color(0xFF203A43),
+                          Color(0xFF0F2027),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : const LinearGradient(
+                        colors: [Color(0xFF1C1C1C), Color(0xFF2E2E2E)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                border: Border.all(color: Colors.grey.shade800, width: 1.5),
                 boxShadow: const [
                   BoxShadow(
-                    color: Colors.black26,
+                    color: Colors.black54,
                     blurRadius: 6,
                     offset: Offset(0, 4),
                   ),
@@ -490,13 +558,13 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(card["icon"], size: 30, color: card["iconColor"]),
+                  Icon(card["icon"], size: 30, color: Colors.white),
                   const SizedBox(height: 6),
                   Text(
                     "Add ${card["title"]}",
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -518,16 +586,16 @@ class _HomePageState extends State<HomePage> {
       {"title": "Loan", "icon": Icons.credit_card},
     ];
 
-    String _getGreetingMessage() {
-      final hour = DateTime.now().hour;
-      if (hour < 12) {
-        return "Good Morning ☀️";
-      } else if (hour < 17) {
-        return "Good Afternoon 🌤️";
-      } else {
-        return "Good Evening 🌙";
-      }
-    }
+    // String _getGreetingMessage() {
+    //   final hour = DateTime.now().hour;
+    //   if (hour < 12) {
+    //     return "Good Morning ☀️";
+    //   } else if (hour < 17) {
+    //     return "Good Afternoon 🌤️";
+    //   } else {
+    //     return "Good Evening 🌙";
+    //   }
+    // }
 
     String _getFormattedDate() {
       final now = DateTime.now();
@@ -535,150 +603,182 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Color(0xFF1565C0),
-
-            pinned: true,
-            expandedHeight: 120,
-            collapsedHeight: kToolbarHeight,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsetsDirectional.only(
-                start: 16,
-                bottom: 12,
-              ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _getGreetingMessage(),
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+      body: Container(
+        decoration: const BoxDecoration(gradient: kPrimaryGradient),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              automaticallyImplyLeading: false,
+              pinned: true,
+              expandedHeight: 120,
+              collapsedHeight: kToolbarHeight,
+              flexibleSpace: Container(
+                decoration: const BoxDecoration(
+                  gradient: kPrimaryGradient, // matches your dark theme
+                ),
+                child: FlexibleSpaceBar(
+                  titlePadding: const EdgeInsetsDirectional.only(
+                    start: 20,
+                    bottom: 14,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _getFormattedDate(),
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  children: [
-                    FutureBuilder(
-                      future: _loadCurrencyFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: SpinKitCircle(color: Colors.blue),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return const Center(
-                            child: Text("Error loading currency."),
-                          );
-                        }
-                        return buildIncomeExpenseStream();
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: List.generate(smallCards.length, (index) {
-                        final card = smallCards[index];
-                        final isSelected = selectedSmallCardIndex == index;
+                  title: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser?.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      String name = 'User';
+                      if (snapshot.hasData && snapshot.data!.exists) {
+                        final data =
+                            snapshot.data!.data() as Map<String, dynamic>;
+                        name = data['name'] ?? 'User';
+                      }
 
-                        return Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedSmallCardIndex = index;
-                              });
-
-                              switch (card['title']) {
-                                case 'Saving':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => Savings(),
-                                    ),
-                                  );
-                                  break;
-                                case 'Reminder':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => Reminderscreen(),
-                                    ),
-                                  );
-                                  break;
-                                case 'Loan':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => Loanscreen(),
-                                    ),
-                                  );
-                                  break;
-                              }
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 6),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Colors.blue.shade200
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    card['icon'],
-                                    size: 30,
-                                    color: Colors.black,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    card['title'],
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Hi, $name",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16, // smaller font
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 6,
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      }),
-                    ),
-                  ],
+                          const SizedBox(height: 2),
+                          Text(
+                            "Welcome back",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14, // smaller subtitle font
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+
+            SliverToBoxAdapter(
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    children: [
+                      FutureBuilder(
+                        future: _loadCurrencyFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: SpinKitCircle(color: Color(0xFF424242)),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return const Center(
+                              child: Text("Error loading currency."),
+                            );
+                          }
+                          return buildIncomeExpenseStream();
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: List.generate(smallCards.length, (index) {
+                          final card = smallCards[index];
+                          final isSelected = selectedSmallCardIndex == index;
+
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedSmallCardIndex = index;
+                                });
+
+                                switch (card['title']) {
+                                  case 'Saving':
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => Savings(),
+                                      ),
+                                    );
+                                    break;
+                                  case 'Reminder':
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => Reminderscreen(),
+                                      ),
+                                    );
+                                    break;
+                                  case 'Loan':
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => Loanscreen(),
+                                      ),
+                                    );
+                                    break;
+                                }
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xFF2C5364)
+                                      : const Color(0xFF203A43),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black54,
+                                      blurRadius: 4,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      card['icon'],
+                                      size: 30,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      card['title'],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

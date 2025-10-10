@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:snapbilling/Screens/Pages/Update_income/Incomescreen.dart';
 import 'package:snapbilling/Screens/Pages/expanse/addexpanse.dart';
 
 // ==== COLORS ====
@@ -16,7 +18,7 @@ const Color kCardColor = Colors.white; // White background
 const Color kCardTextColor = Colors.black87; // Dark text
 
 const Color kHeadingTextColor = Color(0xFF0D47A1); // Dark Blue heading
-const Color kSubtitleTextColor = Colors.black87; // Subtitles
+const Color kSubtitleTextColor = Colors.black87; // Subtitlesz
 const Color kBodyTextColor = Colors.black54; // Regular body text
 const Color kFadedTextColor = Colors.grey; // Faded/secondary
 
@@ -164,328 +166,423 @@ class _CategoryDetailsScreenState extends State<CategoryDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: kAppBarColor,
-        elevation: 0,
-        title: Text(
-          "${widget.category} Expenses",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: kAppBarTextColor,
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [kPrimaryDark1, kPrimaryDark2, kPrimaryDark3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        automaticallyImplyLeading: true,
-        iconTheme: const IconThemeData(color: kAppBarTextColor),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: _fetchExpenses(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitCircle(color: kAppBarColor),
-                    );
-                  }
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            "${widget.category} Expenses",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: kAppBarTextColor,
+            ),
+          ),
+          automaticallyImplyLeading: true,
+          iconTheme: const IconThemeData(color: kAppBarTextColor),
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _fetchExpenses(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: SpinKitCircle(color: kAppBarColor),
+                      );
+                    }
 
-                  final expenses = snapshot.data ?? [];
-                  double spendingRatio = (totalIncome > 0)
-                      ? totalAllExpenses / totalIncome
-                      : 0.0;
+                    final expenses = snapshot.data ?? [];
+                    double spendingRatio = (totalIncome > 0)
+                        ? totalAllExpenses / totalIncome
+                        : 0.0;
 
-                  return Column(
-                    children: [
-                      // Income vs Expenses Card
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          elevation: 6,
-                          color: kBalanceCardColor,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Income vs Expenses",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: kBalanceCardTextColor,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Total Income:",
-                                      style: TextStyle(
-                                        color: kSubtitleTextColor,
-                                      ),
-                                    ),
-                                    Text(
-                                      totalIncome.toStringAsFixed(2),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: kAppBarColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Total Expenses:",
-                                      style: TextStyle(
-                                        color: kSubtitleTextColor,
-                                      ),
-                                    ),
-                                    Text(
-                                      totalAllExpenses.toStringAsFixed(2),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: kButtonSecondaryText,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  "Spending Overview",
-                                  style: TextStyle(
-                                    color: kHeadingTextColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: LinearProgressIndicator(
-                                    value: spendingRatio.clamp(0.0, 1.0),
-                                    minHeight: 10,
-                                    color: kAppBarColor,
-                                    backgroundColor: kFadedTextColor,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  "${(spendingRatio * 100).toStringAsFixed(1)}% of income spent",
-                                  style: TextStyle(color: kSubtitleTextColor),
-                                ),
-                              ],
+                    return Column(
+                      children: [
+                        // Income vs Expenses Card
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                          ),
-                        ),
-                      ),
-
-                      // Expenses list
-                      if (expenses.isEmpty)
-                        const Expanded(
-                          child: Center(
-                            child: Text(
-                              "No expenses in this category.",
-                              style: TextStyle(
-                                color: kBodyTextColor,
-                                fontWeight: FontWeight.bold,
+                            elevation: 8,
+                            shadowColor: Colors.black26,
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    kPrimaryDark1,
+                                    kPrimaryDark2,
+                                    kPrimaryDark3,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.white),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Income vs Expenses",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black45,
+                                          offset: Offset(1, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  // Decorative line
+                                  Container(
+                                    height: 2,
+                                    width: 80,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white70,
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Total Income:",
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        totalIncome.toStringAsFixed(2),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.greenAccent,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Total Expenses:",
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        totalAllExpenses.toStringAsFixed(2),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.redAccent,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    "Spending Overview",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      shadows: const [
+                                        Shadow(
+                                          color: Colors.black26,
+                                          offset: Offset(1, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // Optional line above progress bar
+                                  Container(
+                                    height: 2,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white30,
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: LinearProgressIndicator(
+                                      value: spendingRatio.clamp(0.0, 1.0),
+                                      minHeight: 12,
+                                      backgroundColor: Colors.white24,
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                            Colors.greenAccent,
+                                          ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    "${(spendingRatio * 100).toStringAsFixed(1)}% of income spent",
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        )
-                      else
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: expenses.length,
-                            itemBuilder: (context, index) {
-                              final expense = expenses[index];
-                              final amount = expense['amount'] ?? 0.0;
-                              final title = expense['title'] ?? '';
-                              final category = expense['category'] ?? 'Other';
+                        ),
 
-                              String formattedDate = 'Unknown Date';
-                              final createdAt = expense['createdAt'];
-                              if (createdAt != null && createdAt is Timestamp) {
-                                try {
-                                  final date = createdAt.toDate();
-                                  formattedDate = DateFormat(
-                                    'dd MMM yyyy – hh:mm a',
-                                  ).format(date);
-                                } catch (e) {
-                                  debugPrint("⚠️ Date parsing error: $e");
+                        // Expenses list
+                        if (expenses.isEmpty)
+                          const Expanded(
+                            child: Center(
+                              child: Text(
+                                "No expenses in this category.",
+                                style: TextStyle(
+                                  color: kBodyTextColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: expenses.length,
+                              itemBuilder: (context, index) {
+                                final expense = expenses[index];
+                                final amount = expense['amount'] ?? 0.0;
+                                final title = expense['title'] ?? '';
+                                final category = expense['category'] ?? 'Other';
+
+                                String formattedDate = 'Unknown Date';
+                                final createdAt = expense['createdAt'];
+                                if (createdAt != null &&
+                                    createdAt is Timestamp) {
+                                  try {
+                                    final date = createdAt.toDate();
+                                    formattedDate = DateFormat(
+                                      'dd MMM yyyy – hh:mm a',
+                                    ).format(date);
+                                  } catch (e) {
+                                    debugPrint("⚠️ Date parsing error: $e");
+                                  }
                                 }
-                              }
 
-                              final percentage = totalAllExpenses > 0
-                                  ? ((amount / totalAllExpenses) * 100)
-                                  : 0.0;
+                                final percentage = totalAllExpenses > 0
+                                    ? ((amount / totalAllExpenses) * 100)
+                                    : 0.0;
 
-                              return Dismissible(
-                                key: Key(expense['id']),
-                                background: Container(
-                                  alignment: Alignment.centerLeft,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
+                                return Dismissible(
+                                  key: Key(expense['id']),
+                                  background: Container(
+                                    alignment: Alignment.centerLeft,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: kButtonPrimary,
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: const Icon(
+                                      Icons.edit,
+                                      color: kButtonPrimaryText,
+                                    ),
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: kButtonPrimary,
-                                    borderRadius: BorderRadius.circular(15),
+                                  secondaryBackground: Container(
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    Icons.edit,
-                                    color: kButtonPrimaryText,
-                                  ),
-                                ),
-                                secondaryBackground: Container(
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: const Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                confirmDismiss: (direction) async {
-                                  if (direction ==
-                                      DismissDirection.startToEnd) {
-                                    _editExpense(expense);
-                                    return false;
-                                  } else if (direction ==
-                                      DismissDirection.endToStart) {
-                                    final shouldDelete = await showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text("Confirm Delete"),
-                                        content: const Text(
-                                          "Are you sure you want to delete this expense?",
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(
-                                              context,
-                                            ).pop(false),
-                                            child: const Text("Cancel"),
+                                  confirmDismiss: (direction) async {
+                                    if (direction ==
+                                        DismissDirection.startToEnd) {
+                                      _editExpense(expense);
+                                      return false;
+                                    } else if (direction ==
+                                        DismissDirection.endToStart) {
+                                      final shouldDelete = await showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text("Confirm Delete"),
+                                          content: const Text(
+                                            "Are you sure you want to delete this expense?",
                                           ),
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(true),
-                                            child: const Text(
-                                              "Delete",
-                                              style: TextStyle(
-                                                color: Colors.red,
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(
+                                                context,
+                                              ).pop(false),
+                                              child: const Text("Cancel"),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.of(
+                                                context,
+                                              ).pop(true),
+                                              child: const Text(
+                                                "Delete",
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
                                               ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (shouldDelete == true) {
+                                        await FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(userId)
+                                            .collection('users_expenses')
+                                            .doc(expense['id'])
+                                            .delete();
+                                        setState(() {});
+                                      }
+                                      return shouldDelete;
+                                    }
+                                    return false;
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(
+                                      milliseconds: 400,
+                                    ),
+                                    curve: Curves.easeInOut,
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          kPrimaryDark2.withOpacity(0.85),
+                                          kPrimaryDark3.withOpacity(0.85),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ListTile(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 12,
+                                          ),
+                                      leading: CircleAvatar(
+                                        radius: 28,
+                                        backgroundColor: getCategoryColor(
+                                          category,
+                                        ).withOpacity(0.2),
+                                        child: Icon(
+                                          categoryIcons[category] ??
+                                              Icons.category,
+                                          color: getCategoryColor(category),
+                                          size: 28,
+                                        ),
+                                      ),
+                                      title: Text(
+                                        title,
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        formattedDate,
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white70,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      trailing: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            amount.toStringAsFixed(2),
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.greenAccent,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '${percentage.toStringAsFixed(1)}%',
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white60,
+                                              fontSize: 12,
                                             ),
                                           ),
                                         ],
                                       ),
-                                    );
-                                    if (shouldDelete == true) {
-                                      await FirebaseFirestore.instance
-                                          .collection('users')
-                                          .doc(userId)
-                                          .collection('users_expenses')
-                                          .doc(expense['id'])
-                                          .delete();
-                                      setState(() {});
-                                    }
-                                    return shouldDelete;
-                                  }
-                                  return false;
-                                },
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 400),
-                                  curve: Curves.easeInOut,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        kBalanceCardColor.withOpacity(0.8),
-                                        kButtonSecondaryBorder.withOpacity(0.8),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(15),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Colors.black12,
-                                        blurRadius: 6,
-                                        offset: Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.all(12),
-                                    leading: Icon(
-                                      categoryIcons[category] ?? Icons.category,
-                                      color: getCategoryColor(category),
-                                      size: 32,
-                                    ),
-                                    title: Text(
-                                      title,
-                                      style: const TextStyle(
-                                        color: kCardTextColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    subtitle: Text(
-                                      formattedDate,
-                                      style: const TextStyle(
-                                        color: kSubtitleTextColor,
-                                      ),
-                                    ),
-                                    trailing: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          amount.toStringAsFixed(2),
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: kCardTextColor,
-                                          ),
-                                        ),
-                                        Text(
-                                          '${percentage.toStringAsFixed(1)}%',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: kFadedTextColor,
-                                          ),
-                                        ),
-                                      ],
+                                      onTap: () {
+                                        _editExpense(
+                                          expense,
+                                        ); // Your existing edit function
+                                      },
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
