@@ -12,7 +12,7 @@ import 'package:snapbilling/Screens/Auth_moduls/SignInScreen.dart'
     hide kButtonPrimary;
 import 'package:snapbilling/Screens/HomeScreen/homescreen.dart';
 
-// 🌈 Theme Colors
+//  Theme Colors
 const kPrimaryGradient = LinearGradient(
   colors: [Color(0xFF141E30), Color(0xFF243B55)],
   begin: Alignment.topLeft,
@@ -41,7 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _confirmPasswordVisible = false;
   File? _profileImage;
 
-  // 🖼️ Pick Image
+  // 🖼️Pick Image
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -137,7 +137,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
-  // 🔵 Google Sign-In
+  //  Google Sign-In
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
     try {
@@ -229,7 +229,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 child: Column(
                   children: [
-                    // 🧭 Header
+                    //  Header
                     Text(
                       "Join BillSnap AI",
                       style: GoogleFonts.poppins(
@@ -248,7 +248,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    //   🖼️ Profile Image Picker
+                    //    Profile Image Picker
                     GestureDetector(
                       onTap: _pickImage,
                       child: CircleAvatar(
@@ -268,7 +268,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // 🧾 Fields
+                    //  Fields
                     _buildInputField("Full Name", Icons.person, nameController),
                     const SizedBox(height: 15),
                     _buildInputField("Email", Icons.email, emailController),
@@ -297,7 +297,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 25),
 
-                    // 🚀 Signup Button
+                    // Signup Button
                     ElevatedButton(
                       onPressed: _isLoading ? null : _signUpWithEmail,
                       style: ElevatedButton.styleFrom(
@@ -328,7 +328,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // 🌐 Google Button
+                    //  Google Button
                     GestureDetector(
                       onTap: _isLoading ? null : _signInWithGoogle,
                       child: Container(
@@ -390,7 +390,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // ✏️ Custom Input Field
+  //  Custom Input Field
   Widget _buildInputField(
     String label,
     IconData icon,
@@ -431,5 +431,5 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // 🌐 Google Social Button
+  //  Google Social Button
 }

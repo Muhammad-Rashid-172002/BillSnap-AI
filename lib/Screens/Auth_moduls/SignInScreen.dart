@@ -8,7 +8,7 @@ import 'package:snapbilling/Screens/Auth_moduls/ForgotPassword.dart';
 import 'package:snapbilling/Screens/Auth_moduls/signupscreen.dart';
 import 'package:snapbilling/Screens/HomeScreen/homescreen.dart';
 
-// 🎨 App Colors
+//  App Colors
 const kButtonPrimary = Color(0xFF6C63FF);
 const kAppBarColor = Color(0xFF5A55DA);
 const kButtonPrimaryText = Colors.white;
@@ -17,7 +17,7 @@ const kCardColor = Colors.white;
 const kBodyTextColor = Colors.grey;
 const kButtonColor = Color(0xFF6C63FF); // 🔧 added missing constant
 
-// 🌈 Modern Gradient Background
+//  Modern Gradient Background
 const kPrimaryGradient = LinearGradient(
   colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
   begin: Alignment.topLeft,
@@ -35,10 +35,10 @@ class _SigninScreenState extends State<SigninScreen> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool _passwordVisible = false; // ✅ fixed naming mismatch
+  bool _passwordVisible = false; //  fixed naming mismatch
   bool _isLoading = false;
 
-  // 🔐 Email Sign-In
+  //  Email Sign-In
   Future<void> _signInWithEmail() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
@@ -82,7 +82,7 @@ class _SigninScreenState extends State<SigninScreen> {
     }
   }
 
-  // 🌐 Google Sign-In
+  //  Google Sign-In
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
     try {
@@ -142,7 +142,7 @@ class _SigninScreenState extends State<SigninScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // 🧭 Heading
+                  //  Heading
                   Text(
                     "Welcome Back 👋",
                     style: GoogleFonts.playfairDisplay(
@@ -220,7 +220,7 @@ class _SigninScreenState extends State<SigninScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // 🚀 Sign In Button
+                          //  Sign In Button
                           GestureDetector(
                             onTap: _isLoading ? null : _signInWithEmail,
                             child: Container(
@@ -261,7 +261,7 @@ class _SigninScreenState extends State<SigninScreen> {
 
                           const SizedBox(height: 25),
 
-                          // 🔘 Divider
+                          //  Divider
                           Row(
                             children: [
                               Expanded(child: Divider(color: Colors.grey[300])),
@@ -277,7 +277,7 @@ class _SigninScreenState extends State<SigninScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // 🌐 Google Sign-In
+                          //  Google Sign-In
                           GestureDetector(
                             onTap: _isLoading ? null : _signInWithGoogle,
                             child: Container(
@@ -303,7 +303,7 @@ class _SigninScreenState extends State<SigninScreen> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          // 📝 Sign Up Option
+                          //  Sign Up Option
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -345,7 +345,7 @@ class _SigninScreenState extends State<SigninScreen> {
     );
   }
 
-  // ✏️ Custom Input Field
+  //  Custom Input Field
   Widget _buildInputField(
     String label,
     IconData icon,

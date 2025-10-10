@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:snapbilling/Screens/Auth_moduls/signupscreen.dart';
 import 'package:snapbilling/Screens/HomeScreen/homescreen.dart';
 
-/// 🎨 Color constants
+/// Color constants
 const kButtonPrimary = Color(0xFF6C63FF);
 const kAppBarColor = Color(0xFF5A55DA);
 const kHeadingTextColor = Color(0xFF1A1A1A);
@@ -74,7 +74,7 @@ class _LoginRequiredPageState extends State<LoginRequiredPage>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // 🔒 Circular Lock Icon
+                      //  Circular Lock Icon
                       Container(
                         padding: const EdgeInsets.all(28),
                         decoration: const BoxDecoration(
@@ -96,7 +96,7 @@ class _LoginRequiredPageState extends State<LoginRequiredPage>
                       ),
                       const SizedBox(height: 40),
 
-                      // 🧩 Title
+                      //  Title
                       Text(
                         "Welcome to BillSnap",
                         textAlign: TextAlign.center,
@@ -109,7 +109,7 @@ class _LoginRequiredPageState extends State<LoginRequiredPage>
                       ),
                       const SizedBox(height: 14),
 
-                      // 💬 Subtitle
+                      //  Subtitle
                       Text(
                         "Login to sync your data securely across devices and manage your finances effortlessly.",
                         textAlign: TextAlign.center,
@@ -122,7 +122,7 @@ class _LoginRequiredPageState extends State<LoginRequiredPage>
 
                       const SizedBox(height: 50),
 
-                      // 🔑 Login Button
+                      //  Login Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -155,7 +155,7 @@ class _LoginRequiredPageState extends State<LoginRequiredPage>
 
                       const SizedBox(height: 18),
 
-                      // 🚪 Continue as Guest
+                      //  Continue as Guest
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
@@ -188,7 +188,7 @@ class _LoginRequiredPageState extends State<LoginRequiredPage>
 
                       SizedBox(height: height * 0.08),
 
-                      // 🔻 Footer Text
+                      //  Footer Text
                       Text(
                         "Your financial data stays private & secure 🔒",
                         textAlign: TextAlign.center,
