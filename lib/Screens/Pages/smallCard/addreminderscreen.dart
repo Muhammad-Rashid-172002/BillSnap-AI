@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:snapbilling/Screens/Pages/smallCard/saving.dart';
 
 // ==== COLORS ====
-const Color kAppBarColor = Color(0xFF1565C0); // Deep Blue
+const Color kAppBarColor = Color(0xFF1F2A38); // Dark Blue-Gray
 const Color kAppBarTextColor = Colors.white; // White text
-const Color kButtonPrimary = Color(0xFF1565C0); // Deep Blue background
+const Color kButtonPrimary = Color(0xFF00BFA5); // Teal Accent
 const Color kButtonPrimaryText = Colors.white; // White text
-const Color kCardColor = Colors.white; // White background
-const Color kCardTextColor = Colors.black87; // Dark text
+const Color kCardColor = Color(0xFF2C3E50); // Dark card background
+const Color kCardTextColor = Colors.white; // White text for dark card
 const Color kFadedTextColor = Colors.grey; // Faded/secondary
 
 class AddReminderScreen extends StatefulWidget {
@@ -118,7 +120,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
           data: ThemeData.light().copyWith(
             timePickerTheme: TimePickerThemeData(
               backgroundColor: kCardColor,
-              hourMinuteTextColor: Colors.white,
+              hourMinuteTextColor: kButtonPrimaryText,
               hourMinuteColor: kButtonPrimary,
               dialHandColor: kButtonPrimary,
               dialBackgroundColor: kCardColor,
@@ -207,7 +209,7 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
   void _showSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(message, style: GoogleFonts.poppins()),
         behavior: SnackBarBehavior.floating,
         backgroundColor: kButtonPrimary,
       ),
@@ -220,149 +222,189 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
         ? DateFormat.yMMMMd().add_jm().format(_selectedDateTime!)
         : "Pick Date & Time";
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.isEditing ? "Edit Reminder" : "Add Reminder",
-          style: const TextStyle(
-            color: kAppBarTextColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [kPrimaryDark1, kPrimaryDark2, kPrimaryDark3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        backgroundColor: kAppBarColor,
-        iconTheme: const IconThemeData(color: kAppBarTextColor),
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Title
-                  Card(
-                    elevation: 4,
-                    shadowColor: kButtonPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextFormField(
-                      controller: _titleController,
-                      style: const TextStyle(color: kCardTextColor),
-                      decoration: InputDecoration(
-                        labelText: "Title",
-                        hintText: "Enter your reminder title",
-                        hintStyle: const TextStyle(color: kButtonPrimary),
-                        labelStyle: const TextStyle(color: kButtonPrimary),
-                        prefixIcon: const Icon(
-                          Icons.title,
-                          color: kButtonPrimary,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.all(16),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? "Enter a title"
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Description
-                  Card(
-                    elevation: 4,
-                    shadowColor: kButtonPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextFormField(
-                      controller: _descriptionController,
-                      maxLines: 3,
-                      style: const TextStyle(color: kCardTextColor),
-                      decoration: InputDecoration(
-                        labelText: "Description",
-                        hintText: "Enter details about your reminder",
-                        hintStyle: const TextStyle(color: kButtonPrimary),
-                        labelStyle: const TextStyle(color: kButtonPrimary),
-                        prefixIcon: const Icon(
-                          Icons.description,
-                          color: kButtonPrimary,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.all(16),
-                      ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? "Enter a description"
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Date & Time
-                  ListTile(
-                    tileColor: kCardColor.withOpacity(0.2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    title: Text(
-                      formattedDate,
-                      style: const TextStyle(color: kButtonPrimary),
-                    ),
-                    trailing: const Icon(
-                      Icons.calendar_today,
-                      color: kButtonPrimary,
-                    ),
-                    onTap: _pickDateTime,
-                  ),
-                  const SizedBox(height: 32),
-                  // Save Button
-                  GestureDetector(
-                    onTap: _isLoading ? null : _saveReminder,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: const LinearGradient(
-                          colors: [kButtonPrimary, Color(0xFF42A5F5)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: kButtonPrimary,
-                            blurRadius: 6,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          widget.isEditing
-                              ? "Update Reminder"
-                              : "Save Reminder",
-                          style: const TextStyle(
-                            color: kButtonPrimaryText,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Text(
+            widget.isEditing ? "Edit Reminder" : "Add Reminder",
+            style: GoogleFonts.poppins(
+              color: kAppBarTextColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
             ),
           ),
-          if (_isLoading)
-            Container(
-              color: Colors.black45,
-              child: const Center(
-                child: SpinKitFadingCircle(color: kButtonPrimary, size: 50),
+          backgroundColor: Colors.transparent,
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // Title
+                    Card(
+                      elevation: 4,
+                      shadowColor: kButtonPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _titleController,
+                        style: GoogleFonts.poppins(
+                          color: Colors.black87, // Dark text for visibility
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: "Title",
+                          hintText: "Enter your reminder title",
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.black45, // lighter hint text
+                            fontWeight: FontWeight.w400,
+                          ),
+                          labelStyle: GoogleFonts.poppins(
+                            color: kButtonPrimary, // Matches app theme
+                            fontWeight: FontWeight.w600,
+                          ),
+                          prefixIcon: Icon(Icons.title, color: kButtonPrimary),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(
+                            0.9,
+                          ), // lighter fill for contrast
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.all(16),
+                        ),
+                        validator: (value) => value == null || value.isEmpty
+                            ? "Enter a title"
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Description
+                    Card(
+                      elevation: 4,
+                      shadowColor: kButtonPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _descriptionController,
+                        maxLines: 3,
+                        style: GoogleFonts.poppins(
+                          color: Colors.black87, // Dark text for visibility
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: "Description",
+                          hintText: "Enter details about your reminder",
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.black45, // lighter hint text
+                            fontWeight: FontWeight.w400,
+                          ),
+                          labelStyle: GoogleFonts.poppins(
+                            color: kButtonPrimary, // Matches app theme
+                            fontWeight: FontWeight.w600,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.description,
+                            color: kButtonPrimary,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(
+                            0.9,
+                          ), // lighter fill for contrast
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.all(16),
+                        ),
+                        validator: (value) => value == null || value.isEmpty
+                            ? "Enter a description"
+                            : null,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                    // Date & Time
+                    ListTile(
+                      tileColor: kCardColor.withOpacity(0.2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      title: Text(
+                        formattedDate,
+                        style: GoogleFonts.poppins(color: kButtonPrimaryText),
+                      ),
+                      trailing: const Icon(
+                        Icons.calendar_today,
+                        color: kButtonPrimary,
+                      ),
+                      onTap: _pickDateTime,
+                    ),
+                    const SizedBox(height: 32),
+                    // Save Button
+                    GestureDetector(
+                      onTap: _isLoading ? null : _saveReminder,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: const LinearGradient(
+                            colors: [kButtonPrimary, Color(0xFF00E5FF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: kButtonPrimary,
+                              blurRadius: 6,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            widget.isEditing
+                                ? "Update Reminder"
+                                : "Save Reminder",
+                            style: GoogleFonts.poppins(
+                              color: kButtonPrimaryText,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             ),
-        ],
+            if (_isLoading)
+              Container(
+                color: Colors.black45,
+                child: const Center(
+                  child: SpinKitFadingCircle(color: kButtonPrimary, size: 50),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

@@ -1,36 +1,19 @@
-import 'dart:io';
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:snapbilling/Screens/Auth_moduls/SignInScreen.dart';
+import 'package:snapbilling/Screens/Pages/expanse/Category_breakdown_screen.dart' hide kButtonPrimaryText, kBodyTextColor;
 
-// ==== COLOR CONSTANTS ====
-// App Bar & Background
-const Color kWhite = Color(0xFFFFFFFF);
-
-// Balance Card Background
-const Color kLightGray = Color(0xFFF5F5F5);
-
-// List Tile Card Border
-const Color kBorderGray = Color(0xFFE0E0E0);
-
-// Buttons, Icons, Highlights
-const Color kBlueAccent = Color(0xFF1565C0);
-
-// ==== TEXT COLORS ====
-// Main Headings (AppBar title, card titles)
-const Color kTextHeading = Color(0xFF000000);
-
-// Subtitles (ListTile subtitle, labels)
-const Color kTextSubtitle = Color(0xFF424242);
-
-// Body Text (normal descriptions, content)
-const Color kTextBody = Color(0xFF212121);
-
-// Secondary/Faded text (hints, less important info)
-const Color kTextSecondary = Color(0xFF757575);
+// ==== Colors (matching your dark theme) ====
+const Color kPrimaryDark1 = Color(0xFF1C1F26);
+const Color kPrimaryDark2 = Color(0xFF2A2F3A);
+const Color kPrimaryDark3 = Color(0xFF383C4C);
+const Color kAccent = Color(0xFF00E676); // For icons/buttons text
+const Color kWhite = Colors.white;
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -64,77 +47,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-  Future<void> _scheduleNotification(
-    DateTime scheduledTime,
-    String title,
-    String message,
-  ) async {
-    final androidDetails = AndroidNotificationDetails(
-      'reminder_channel_id',
-      'Reminders',
-      channelDescription: 'Reminder notifications',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-
-    final notificationDetails = NotificationDetails(android: androidDetails);
-  }
-
-  Future<void> _saveReminder() async {
-    final title = _titleController.text.trim();
-    final description = _descriptionController.text.trim();
-
-    if (title.isEmpty ||
-        description.isEmpty ||
-        selectedDate.isBefore(DateTime.now())) {
-      _showSnackbar("Please fill all fields correctly");
-      return;
-    }
-
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return;
-
-    final remindersRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('reminders');
-
-    final reminderData = {
-      'title': title,
-      'description': description,
-      'time': selectedDate,
-      'createdAt': Timestamp.now(),
-    };
-
-    await remindersRef.add(reminderData);
-
-    final notificationsRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('users_notifications');
-
-    await notificationsRef.add({
-      'title': 'Reminder: $title',
-      'message': description,
-      'timestamp': Timestamp.fromDate(selectedDate),
-      'isShown': false,
-    });
-
-    await _scheduleNotification(selectedDate, 'Reminder: $title', description);
-
-    _showSnackbar("Reminder saved and scheduled!");
-    Navigator.pop(context);
-  }
-
   Future<void> _showLocalNotification(String title, String message) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-          'your_channel_id',
-          'Notification Channel',
-          importance: Importance.max,
-          priority: Priority.high,
-          playSound: true,
-        );
+      'your_channel_id',
+      'Notification Channel',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+    );
 
     const NotificationDetails notificationDetails = NotificationDetails(
       android: androidDetails,
@@ -171,58 +92,58 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
   }
 
-  Future<void> _handleNewNotifications(List<QueryDocumentSnapshot> docs) async {
-    for (final doc in docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      final isShown = data['isShown'] ?? false;
-
-      if (!isShown) {
-        final title = data['title'] ?? 'No Title';
-        final message = data['message'] ?? 'No Message';
-
-        await _showLocalNotification(title, message);
-        await doc.reference.update({'isShown': true});
-      }
-    }
-  }
-
   Future<void> _confirmDelete(DocumentReference docRef) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: kLightGray,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-          side: BorderSide(color: kBlueAccent, width: 2),
-        ),
-        title: const Text(
-          "Delete Notification",
-          style: TextStyle(color: kTextHeading, fontWeight: FontWeight.bold),
-        ),
-        content: const Text(
-          "Are you sure you want to delete this notification?",
-          style: TextStyle(color: kTextSubtitle),
-        ),
-        actions: [
-          TextButton(
-            child: Text("Cancel", style: TextStyle(color: kBlueAccent)),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          TextButton(
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-        ],
+   final confirmed = await showDialog<bool>(
+  context: context,
+  builder: (_) => AlertDialog(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    backgroundColor: kPrimaryDark2,
+    title: Text(
+      'Delete Notification',
+      style: GoogleFonts.poppins(
+        fontWeight: FontWeight.bold,
+        color: kButtonPrimaryText,
+        fontSize: 20,
       ),
-    );
+    ),
+    content: Text(
+      'Are you sure you want to delete this notification?',
+      style: GoogleFonts.roboto(
+        color: kBodyTextColor,
+        fontSize: 16,
+      ),
+    ),
+    actions: [
+      TextButton(
+        style: TextButton.styleFrom(foregroundColor: kFadedTextColor),
+        onPressed: () => Navigator.pop(context, false),
+        child: Text('Cancel', style: GoogleFonts.roboto()),
+      ),
+      TextButton(
+        style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+        onPressed: () => Navigator.pop(context, true),
+        child: Text(
+          'Delete',
+          style: GoogleFonts.roboto(fontWeight: FontWeight.bold),
+        ),
+      ),
+    ],
+  ),
+);
+
 
     if (confirmed == true) {
       await docRef.delete();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("Notification deleted"),
-            backgroundColor: Colors.red.shade300,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            backgroundColor: Colors.redAccent.shade400,
+            content: Text(
+              "Notification deleted",
+              style: GoogleFonts.poppins(color: kWhite, fontWeight: FontWeight.w500),
+            ),
           ),
         );
       }
@@ -232,33 +153,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void _showSnackbar(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  void _pickDateTime() async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
+    ).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        backgroundColor: kAccent,
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(color: kWhite, fontWeight: FontWeight.w500),
+        ),
+      ),
     );
-    if (date == null) return;
-
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(selectedDate),
-    );
-    if (time == null) return;
-
-    setState(() {
-      selectedDate = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
-    });
   }
 
   @override
@@ -266,27 +171,26 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final userId = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
+      backgroundColor: kPrimaryDark1,
       appBar: AppBar(
-        backgroundColor: kBlueAccent,
+        backgroundColor: kPrimaryDark2,
         automaticallyImplyLeading: false,
         title: Text(
           'Notifications',
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 28,
+          style: GoogleFonts.poppins(
+            fontSize: 24,
             fontWeight: FontWeight.bold,
             color: kWhite,
-            letterSpacing: 1.2,
           ),
         ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: kTextHeading),
         elevation: 0,
       ),
       body: userId == null
           ? Center(
               child: Text(
                 "User not logged in",
-                style: TextStyle(color: kTextBody),
+                style: GoogleFonts.poppins(color: Colors.white70),
               ),
             )
           : StreamBuilder<QuerySnapshot>(
@@ -299,7 +203,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                    child: CircularProgressIndicator(color: kTextBody),
+                    child: CircularProgressIndicator(color: kAccent),
                   );
                 }
 
@@ -307,16 +211,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   return Center(
                     child: Text(
                       'No Notifications yet.',
-                      style: TextStyle(color: kTextBody),
+                      style: GoogleFonts.poppins(color: Colors.white54),
                     ),
                   );
                 }
 
                 final notifications = snapshot.data!.docs;
-
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _handleNewNotifications(notifications);
-                });
 
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 8),
@@ -328,9 +228,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     final message = data['message'] ?? 'No Message';
                     final timestamp = data['timestamp'] as Timestamp?;
                     final formattedTime = timestamp != null
-                        ? DateFormat(
-                            'dd MMM yyyy, hh:mm a',
-                          ).format(timestamp.toDate())
+                        ? DateFormat('dd MMM yyyy, hh:mm a').format(timestamp.toDate())
                         : 'Unknown time';
 
                     return Dismissible(
@@ -339,7 +237,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       background: Container(
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        color: Colors.red.shade300,
+                        color: Colors.red.shade400,
                         child: const Icon(Icons.delete, color: kWhite),
                       ),
                       confirmDismiss: (_) async {
@@ -347,65 +245,41 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         return false;
                       },
                       child: Center(
-                        child: Card(
-                          color: kLightGray,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: kBorderGray, width: 1),
-                          ),
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 6,
-                            horizontal: 12,
-                          ),
-                          elevation: 3,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0,
-                              vertical: 8,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [kPrimaryDark2, kPrimaryDark3],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                            child: Row(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white12),
+                          ),
+                          child: ListTile(
+                            leading: Icon(Icons.notifications, color: kAccent, size: 28),
+                            title: Text(
+                              title,
+                              style: GoogleFonts.poppins(
+                                color: kWhite,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  width: 4,
-                                  height: 80,
-                                  color: kBlueAccent,
+                                const SizedBox(height: 4),
+                                Text(
+                                  message,
+                                  style: GoogleFonts.poppins(color: Colors.white70, fontSize: 13),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: ListTile(
-                                    leading: Icon(
-                                      Icons.notifications,
-                                      color: kBlueAccent,
-                                    ),
-                                    title: Text(
-                                      title,
-                                      style: TextStyle(
-                                        color: kTextHeading,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          message,
-                                          style: TextStyle(
-                                            color: kTextBody.withOpacity(0.7),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          formattedTime,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: kTextSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  formattedTime,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    color: Colors.white38,
                                   ),
                                 ),
                               ],

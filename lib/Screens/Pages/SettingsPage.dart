@@ -5,35 +5,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:snapbilling/Screens/Auth_moduls/SignInScreen.dart';
+import 'package:snapbilling/Screens/Auth_moduls/SignInScreen.dart' show SigninScreen;
 import 'package:snapbilling/Screens/OnboardingScreens/onboardingscreens.dart';
 
-// ==== COLORS ====
-// AppBar
-const Color kAppBarColor = Color(0xFF1565C0); // Deep Blue
-const Color kAppBarTextColor = Colors.white; // White text
-
-// Balance Card
-const Color kBalanceCardColor = Color(0xFFFFD700); // Gold
-const Color kBalanceCardTextColor = Colors.black; // Black text on gold
-
-// Cards / ListTile
-const Color kCardColor = Colors.white;
-const Color kCardTextColor = Colors.black87;
-
-// Text
-const Color kHeadingTextColor = Color(0xFF0D47A1); // Dark Blue heading
-const Color kSubtitleTextColor = Colors.black87;
-const Color kBodyTextColor = Colors.black54;
-const Color kFadedTextColor = Colors.grey;
-
-// Buttons
-const Color kButtonPrimary = Color(0xFF1565C0); // Deep Blue
-const Color kButtonPrimaryText = Colors.white;
-const Color kButtonSecondaryBorder = Color(0xFFFFD700); // Gold
-const Color kButtonSecondaryText = Color(0xFF1565C0);
-const Color kButtonDisabled = Color(0xFFBDBDBD);
-const Color kButtonDisabledText = Color(0xFF757575);
+// ==== Dark Theme Colors ====
+const Color kPrimaryDark1 = Color(0xFF1C1F26);
+const Color kPrimaryDark2 = Color(0xFF2A2F3A);
+const Color kPrimaryDark3 = Color(0xFF383C4C);
+const Color kAccent = Color(0xFF00E676); // Accent for icons/buttons
+const Color kCardColor = Color(0xFF2A2F3A);
+const Color kCardTextColor = Colors.white;
+const Color kBodyTextColor = Colors.white70;
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -96,30 +78,36 @@ class _SettingsPageState extends State<SettingsPage> {
         setState(() => userEmail = value);
       } else if (field == 'password') {
         await user!.updatePassword(value);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password updated successfully.')),
-        );
+        _showSnackbar('Password updated successfully.');
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('$field updated successfully.')));
+      _showSnackbar('$field updated successfully.');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Please log in again to update $field.")),
-        );
+        _showSnackbar("Please log in again to update $field.");
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error: ${e.message}")));
+        _showSnackbar("Error: ${e.message}");
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Unexpected error: $e")));
+      _showSnackbar("Unexpected error: $e");
     }
+  }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        backgroundColor: kAccent,
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
   }
 
   void _showEditDialog(
@@ -136,17 +124,17 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) => AlertDialog(
         backgroundColor: kCardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("Edit $title", style: TextStyle(color: kHeadingTextColor)),
+        title: Text(title, style: GoogleFonts.poppins(color: kCardTextColor, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: controller,
               obscureText: isPassword,
-              style: TextStyle(color: kBodyTextColor),
+              style: GoogleFonts.poppins(color: kBodyTextColor),
               decoration: InputDecoration(
                 hintText: "Enter $title",
-                hintStyle: TextStyle(color: kSubtitleTextColor),
+                hintStyle: GoogleFonts.poppins(color: kBodyTextColor.withOpacity(0.6)),
               ),
             ),
             if (isPassword) const SizedBox(height: 10),
@@ -154,10 +142,10 @@ class _SettingsPageState extends State<SettingsPage> {
               TextField(
                 controller: confirmController,
                 obscureText: true,
-                style: TextStyle(color: kBodyTextColor),
+                style: GoogleFonts.poppins(color: kBodyTextColor),
                 decoration: InputDecoration(
                   hintText: "Confirm Password",
-                  hintStyle: TextStyle(color: kSubtitleTextColor),
+                  hintStyle: GoogleFonts.poppins(color: kBodyTextColor.withOpacity(0.6)),
                 ),
               ),
           ],
@@ -165,27 +153,19 @@ class _SettingsPageState extends State<SettingsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: kButtonSecondaryText),
-            ),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: kAccent)),
           ),
           ElevatedButton(
             onPressed: () {
               if (isPassword && controller.text != confirmController.text) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Passwords do not match!")),
-                );
+                _showSnackbar("Passwords do not match!");
                 return;
               }
               _updateField(field, controller.text.trim());
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: kButtonPrimary),
-            child: const Text(
-              "Save",
-              style: TextStyle(color: kButtonPrimaryText),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: kAccent),
+            child: Text("Save", style: GoogleFonts.poppins(color: Colors.black, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -207,13 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
       currencyFlag = currency.flag ?? '';
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Currency updated to ${currency.code}'),
-        backgroundColor: kButtonPrimary,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    _showSnackbar('Currency updated to ${currency.code}');
   }
 
   void _showCurrencyPicker() {
@@ -223,8 +197,8 @@ class _SettingsPageState extends State<SettingsPage> {
       showSearchField: true,
       theme: CurrencyPickerThemeData(
         backgroundColor: kCardColor,
-        titleTextStyle: TextStyle(color: kButtonPrimary, fontSize: 18),
-        subtitleTextStyle: TextStyle(color: kSubtitleTextColor),
+        titleTextStyle: GoogleFonts.poppins(color: kAccent, fontSize: 18),
+        subtitleTextStyle: GoogleFonts.poppins(color: kBodyTextColor),
         bottomSheetHeight: 400,
       ),
       onSelect: (Currency currency) {
@@ -239,20 +213,17 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) => AlertDialog(
         backgroundColor: kCardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Logout"),
-        content: const Text("Are you sure you want to logout?"),
+        title: Text("Logout", style: GoogleFonts.poppins(color: kCardTextColor)),
+        content: Text("Are you sure you want to logout?", style: GoogleFonts.poppins(color: kBodyTextColor)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: kButtonSecondaryText),
-            ),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: kAccent)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text("Logout", style: TextStyle(color: Colors.white)),
+            child: Text("Logout", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),
@@ -260,10 +231,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (confirm == true) {
       await FirebaseAuth.instance.signOut();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SigninScreen()),
-      );
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SigninScreen()));
     }
   }
 
@@ -276,19 +244,20 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) => AlertDialog(
         backgroundColor: kCardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Delete Account"),
-        content: const Text(
+        title: Text("Delete Account", style: GoogleFonts.poppins(color: kCardTextColor)),
+        content: Text(
           "Are you sure you want to delete your account? This action is permanent.",
+          style: GoogleFonts.poppins(color: kBodyTextColor),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text("Cancel", style: TextStyle(color: Colors.green)),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: Colors.green)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text("Delete", style: TextStyle(color: Colors.white)),
+            child: Text("Delete", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),
@@ -298,20 +267,10 @@ class _SettingsPageState extends State<SettingsPage> {
       try {
         await FirebaseFirestore.instance.collection('users').doc(uid).delete();
         await user!.delete();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => OnboardingScreen()),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Account successfully deleted."),
-            backgroundColor: Colors.green,
-          ),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OnboardingScreen()));
+        _showSnackbar("Account successfully deleted.");
       } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        _showSnackbar("Error: $e");
       }
     }
   }
@@ -324,20 +283,18 @@ class _SettingsPageState extends State<SettingsPage> {
     Color? iconColor,
   }) {
     return Card(
+      color: kCardColor,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 4,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: (iconColor ?? kButtonPrimary).withOpacity(0.1),
-          child: Icon(icon, color: iconColor ?? kButtonPrimary),
+          backgroundColor: (iconColor ?? kAccent).withOpacity(0.1),
+          child: Icon(icon, color: iconColor ?? kAccent),
         ),
-        title: Text(
-          title,
-          style: TextStyle(fontWeight: FontWeight.bold, color: kCardTextColor),
-        ),
-        subtitle: Text(subtitle, style: TextStyle(color: kBodyTextColor)),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        title: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: kCardTextColor)),
+        subtitle: Text(subtitle, style: GoogleFonts.poppins(color: kBodyTextColor)),
+        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: kCardTextColor),
         onTap: onTap,
       ),
     );
@@ -346,20 +303,18 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: kPrimaryDark1,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // Header
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 40),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [
-                      kAppBarColor,
-                      kBalanceCardColor,
-                    ], // Deep Blue to Gold
+                    colors: [kPrimaryDark2, kPrimaryDark3],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -373,46 +328,19 @@ class _SettingsPageState extends State<SettingsPage> {
                     CircleAvatar(
                       radius: 50,
                       backgroundColor: kCardColor,
-                      child: Icon(
-                        Icons.person,
-                        size: 50,
-                        color: kButtonPrimary,
-                      ),
+                      child: Icon(Icons.person, size: 50, color: kAccent),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      userName,
-                      style: GoogleFonts.poppins(
-                        color: kAppBarTextColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text(userName, style: GoogleFonts.poppins(color: kCardTextColor, fontSize: 20, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text(
-                      userEmail,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
+                    Text(userEmail, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14)),
                   ],
                 ),
               ),
 
               const SizedBox(height: 20),
-              _buildCardTile(
-                icon: Icons.person,
-                title: "Name",
-                subtitle: userName,
-                onTap: () => _showEditDialog("Name", userName, "name"),
-              ),
-              _buildCardTile(
-                icon: Icons.email,
-                title: "Email",
-                subtitle: userEmail,
-                onTap: () => _showEditDialog("Email", userEmail, "email"),
-              ),
+              _buildCardTile(icon: Icons.person, title: "Name", subtitle: userName, onTap: () => _showEditDialog("Name", userName, "name")),
+              _buildCardTile(icon: Icons.email, title: "Email", subtitle: userEmail, onTap: () => _showEditDialog("Email", userEmail, "email")),
               _buildCardTile(
                 icon: Icons.lock,
                 title: "Password",
@@ -431,22 +359,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   } catch (_) {}
 
                   if (authenticated) {
-                    _showEditDialog(
-                      "Password",
-                      '',
-                      "password",
-                      isPassword: true,
-                    );
+                    _showEditDialog("Password", '', "password", isPassword: true);
                   }
                 },
               ),
               _buildCardTile(
                 icon: Icons.attach_money,
-                iconColor: kButtonPrimary,
+                iconColor: kAccent,
                 title: "Currency",
                 subtitle: '$currencyFlag $selectedCurrency',
                 onTap: _showCurrencyPicker,
               ),
+
               const SizedBox(height: 30),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -460,9 +384,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         backgroundColor: Colors.redAccent,
                         foregroundColor: Colors.white,
                         minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -471,12 +393,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       icon: const Icon(Icons.delete_forever),
                       label: const Text("Delete Account"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: kBalanceCardColor,
-                        foregroundColor: kBalanceCardTextColor,
+                        backgroundColor: kPrimaryDark2,
+                        foregroundColor: kAccent,
                         minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ],

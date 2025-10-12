@@ -1,16 +1,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:snapbilling/Screens/Pages/AI/ai_chatbot_page.dart';
-import 'package:snapbilling/Screens/Pages/AI/ai_insights_page.dart';
+import 'package:snapbilling/Screens/Auth_moduls/SignInScreen.dart';
+import 'package:snapbilling/Screens/Pages/AiChatbotPage.dart';
+import 'package:snapbilling/Screens/Pages/AiInsightsPage.dart' hide kPrimaryGradient;
 import 'package:snapbilling/Screens/Pages/HomePage.dart';
 import 'package:snapbilling/Screens/Pages/Notification.dart';
 import 'package:snapbilling/Screens/Pages/SettingsPage.dart';
 import 'package:snapbilling/Screens/Pages/TaskPage.dart';
-import 'package:snapbilling/Screens/Pages/Update_income/AddIncomescreen.dart' hide kButtonPrimary, kButtonSecondaryBorder, kHeadingTextColor, kCardColor, kButtonPrimaryText, kAppBarColor;
-import 'package:snapbilling/Screens/Pages/expanse/addexpanse.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
@@ -24,11 +23,19 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   DateTime? _lastBackPressed;
 
+  // Define a dummy total value or fetch it from your data source
+  final double total = 0.0;
+  
+
   final List<Widget> _pages = [
     HomePage(),
-    AiInsightsPage(), // 🧠 AI Insights Dashboard
-    AiChatbotPage(), // 💬 Finance Chatbot
     TaskPage(),
+    AiInsightsPage(
+  totalIncome: 110.0 ,
+  totalExpense: 45.0,
+),
+
+    Aichatbotpage(),
     NotificationsPage(),
     SettingsPage(),
   ];
@@ -40,9 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    setState(() => _currentIndex = index);
   }
 
   Future<bool> _onWillPop() async {
@@ -52,9 +57,13 @@ class _HomeScreenState extends State<HomeScreen> {
       _lastBackPressed = now;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Press again to exit'),
-          backgroundColor: kButtonPrimary,
+          content: const Text(
+            'Press again to exit',
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+          backgroundColor: kPrimaryGradient.colors.last,
           behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
         ),
       );
       return false;
@@ -62,210 +71,78 @@ class _HomeScreenState extends State<HomeScreen> {
     return true;
   }
 
-  void _openAddScreen() {
-    final bool isGuest = FirebaseAuth.instance.currentUser == null;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      backgroundColor: kCardColor,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 50,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "Add Transaction",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: kHeadingTextColor,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _bottomSheetButton(
-                    icon: Icons.arrow_upward,
-                    label: "Expense",
-                    color: kButtonSecondaryBorder,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddExpenseScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _bottomSheetButton(
-                    icon: Icons.arrow_downward,
-                    label: "Income",
-                    color: kButtonPrimary,
-                    onTap: () async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AddIncomeScreen(isGuest: isGuest),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _bottomSheetButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 130,
-        height: 130,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: kButtonPrimaryText),
-            const SizedBox(height: 10),
-            Text(
-              label,
-              style: TextStyle(
-                color: kButtonPrimaryText,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         bool exit = await _onWillPop();
-        if (exit) {
-          SystemNavigator.pop();
-        }
+        if (exit) SystemNavigator.pop();
         return false;
       },
       child: Scaffold(
         extendBody: true,
-        backgroundColor: Colors.grey.shade100,
-        body: IndexedStack(index: _currentIndex, children: _pages),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: Container(
-          height: 70,
-          width: 70,
+        body: Container(
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [kButtonPrimary, kAppBarColor],
+              colors: [
+                kPrimaryGradient.colors.first.withOpacity(0.08),
+                kPrimaryGradient.colors.last.withOpacity(0.12),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: kButtonPrimary.withOpacity(0.6),
-                spreadRadius: 4,
-                blurRadius: 10,
-                offset: const Offset(0, 6),
-              ),
-            ],
           ),
-          child: FloatingActionButton(
-            onPressed: _openAddScreen,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            splashColor: kButtonPrimaryText.withOpacity(0.2),
-            child: const Icon(Icons.add, size: 36, color: Colors.white),
+          child: IndexedStack(
+            index: _currentIndex,
+            children: _pages,
           ),
         ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [kButtonPrimary, kAppBarColor],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 10,
-                offset: Offset(0, -4),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  kPrimaryGradient.colors.first.withOpacity(0.9),
+                  kPrimaryGradient.colors.last.withOpacity(0.9),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-            ],
-          ),
-          child: BottomAppBar(
-            shape: const CircularNotchedRectangle(),
-            notchMargin: 10,
-            color: Colors.transparent,
-            elevation: 0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Row(
-                    children: [
-                      _buildNavItem(Icons.home_outlined, 0),
-                      const SizedBox(width: 12),
-                      _buildNavItem(Icons.auto_graph_outlined, 1), // AI Insights
-                      const SizedBox(width: 12),
-                      _buildNavItem(Icons.chat_bubble_outline, 2), // AI Chatbot
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      _buildNavItem(Icons.check_box_outlined, 3),
-                      const SizedBox(width: 12),
-                      _buildNavItem(Icons.notifications_outlined, 4),
-                      const SizedBox(width: 12),
-                      _buildNavItem(Icons.settings_outlined, 5),
-                    ],
-                  ),
+              borderRadius: BorderRadius.circular(26),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26.withOpacity(0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(26),
+              child: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                backgroundColor: Colors.transparent,
+                currentIndex: _currentIndex,
+                onTap: _onTabTapped,
+                selectedItemColor: Colors.white,
+                unselectedItemColor: Colors.white70,
+                showUnselectedLabels: true,
+                selectedLabelStyle: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+                unselectedLabelStyle: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 11,
+                ),
+                items: [
+                  _buildNavItem(Icons.home_outlined, Icons.home, 'Home', 0),
+                  _buildNavItem(Icons.check_box_outlined, Icons.check_box, 'Tasks', 1),
+                  _buildNavItem(Icons.lightbulb_outline, Icons.lightbulb, 'AI Insights', 2),
+                  _buildNavItem(Icons.chat_bubble_outline, Icons.chat_bubble, 'AI Chat', 3),
+                  _buildNavItem(Icons.notifications_outlined, Icons.notifications, 'Alerts', 4),
+                  _buildNavItem(Icons.settings_outlined, Icons.settings, 'Settings', 5),
                 ],
               ),
             ),
@@ -275,39 +152,44 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNavItem(IconData icon, int index) {
-    final bool isActive = _currentIndex == index;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: isActive
-            ? LinearGradient(
-                colors: [kButtonPrimary, kAppBarColor],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+  BottomNavigationBarItem _buildNavItem(
+      IconData icon, IconData activeIcon, String label, int index) {
+    return BottomNavigationBarItem(
+      icon: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.all(6),
+        decoration: _currentIndex == index
+            ? BoxDecoration(
+                gradient: kPrimaryGradient,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: kPrimaryGradient.colors.last.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               )
             : null,
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: kButtonPrimary.withOpacity(0.5),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : [],
+        child: Icon(icon, color: _currentIndex == index ? Colors.white : Colors.white70),
       ),
-      child: IconButton(
-        icon: Icon(
-          icon,
-          size: isActive ? 30 : 26,
-          color: isActive ? kButtonPrimaryText : Colors.white70,
+      activeIcon: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          gradient: kPrimaryGradient,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: kPrimaryGradient.colors.last.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        onPressed: () => _onTabTapped(index),
+        child: Icon(activeIcon, color: Colors.white),
       ),
+      label: label,
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,16 +10,16 @@ import 'package:intl/intl.dart';
 import 'package:snapbilling/Screens/Pages/Goals/addnewgoal.dart';
 
 /// ==== COLORS ====
-const Color kWhite = Color(0xFFFFFFFF);
-const Color kLightGray = Color(0xFFF5F5F5);
-const Color kBorderGray = Color(0xFFE0E0E0);
-const Color kBlueAccent = Color(0xFF1565C0);
-
-// ==== TEXT COLORS ====
-const Color kTextHeading = Color(0xFF000000);
-const Color kTextSubtitle = Color(0xFF424242);
-const Color kTextBody = Color(0xFF212121);
-const Color kTextSecondary = Color(0xFF757575);
+const Color kPrimaryDark1 = Color(0xFF0F2027);
+const Color kPrimaryDark2 = Color(0xFF203A43);
+const Color kPrimaryDark3 = Color(0xFF2C5364);
+const Color kCardDark = Color(0xFF1C1C1E);
+const Color kAccentColor = Color(0xFFFFA500); // Orange accent
+const Color kWhite = Colors.white;
+const Color kTextHeading = Colors.white;
+const Color kTextSubtitle = Colors.white70;
+const Color kTextBody = Colors.white;
+const Color kTextSecondary = Colors.white54;
 
 /// Guest goals store
 class GuestGoalStore {
@@ -73,6 +75,9 @@ class _TaskPageState extends State<TaskPage> {
   bool isLoading = false;
   bool isFabLoading = false;
   final currentUser = FirebaseAuth.instance.currentUser;
+
+  // Add a variable for user-selected currency, default to $
+  String currencySymbol = "";
 
   @override
   void initState() {
@@ -197,16 +202,20 @@ class _TaskPageState extends State<TaskPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Goal'),
-        content: const Text('Are you sure you want to delete this goal?'),
+        backgroundColor: kCardDark,
+        title: Text('Delete Goal', style: GoogleFonts.poppins(color: kWhite)),
+        content: Text(
+            'Are you sure you want to delete this goal?',
+            style: GoogleFonts.poppins(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child:
+                Text('Cancel', style: GoogleFonts.poppins(color: Colors.white70)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text('Delete', style: GoogleFonts.poppins(color: kAccentColor)),
           ),
         ],
       ),
@@ -235,17 +244,17 @@ class _TaskPageState extends State<TaskPage> {
     final Stream<QuerySnapshot>? goalsStream = currentUser == null
         ? null
         : FirebaseFirestore.instance
-              .collection('users')
-              .doc(currentUser!.uid)
-              .collection('users_goals')
-              .orderBy('createdAt', descending: true)
-              .snapshots();
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('users_goals')
+            .orderBy('createdAt', descending: true)
+            .snapshots();
 
     return Scaffold(
-      backgroundColor: kWhite,
+      backgroundColor: kPrimaryDark1,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: kBlueAccent,
+        backgroundColor: kPrimaryDark3,
         title: Text(
           'My Saving Goal',
           style: GoogleFonts.playfairDisplay(
@@ -264,7 +273,7 @@ class _TaskPageState extends State<TaskPage> {
             Column(
               children: [
                 const SizedBox(height: 16),
-                Center(child: _buildSavingsCircle()),
+                Center(child: _buildSavingsCard()),
                 const SizedBox(height: 16),
                 _buildTotalsTile(),
                 const SizedBox(height: 12),
@@ -277,21 +286,19 @@ class _TaskPageState extends State<TaskPage> {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const Center(
-                                child: SpinKitCircle(color: kBlueAccent),
+                                child: SpinKitCircle(color: kWhite),
                               );
                             }
 
                             final goals = snapshot.data?.docs ?? [];
 
                             if (goals.isEmpty) {
-                              return const Center(
+                              return Center(
                                 child: Text(
                                   'No savings goals yet.\nTap the + button to add one.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: kTextBody,
-                                  ),
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 16, color: Colors.white70),
                                 ),
                               );
                             }
@@ -312,8 +319,8 @@ class _TaskPageState extends State<TaskPage> {
                                     .clamp(0.0, 1.0);
                                 final createdAt =
                                     (goal['createdAt'] as Timestamp?)
-                                        ?.toDate() ??
-                                    DateTime.now();
+                                            ?.toDate() ??
+                                        DateTime.now();
 
                                 return _buildGoalTile(
                                   goalDoc.id,
@@ -323,7 +330,7 @@ class _TaskPageState extends State<TaskPage> {
                                   progress,
                                   createdAt,
                                   () => calculateMonthlyAndTotalSavings(),
-                                  firestoreDoc: goalDoc, // ✅ pass doc here
+                                  firestoreDoc: goalDoc,
                                 );
                               },
                             );
@@ -335,12 +342,36 @@ class _TaskPageState extends State<TaskPage> {
             Positioned(
               bottom: 16,
               right: 16,
-              child: FloatingActionButton(
-                backgroundColor: kBlueAccent,
-                onPressed: _onAddGoalPressed,
-                child: isFabLoading
-                    ? const SpinKitFadingCircle(color: kWhite, size: 25)
-                    : const Icon(Icons.add, color: kWhite),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0F2027), Color(0xFF2C5364)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black54,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                    BoxShadow(
+                      color: Colors.white10,
+                      blurRadius: 4,
+                      offset: Offset(-2, -2),
+                    ),
+                  ],
+                ),
+                child: FloatingActionButton(
+                  elevation: 0,
+                  backgroundColor: Colors.transparent,
+                  tooltip: 'Add Goal',
+                  onPressed: _onAddGoalPressed,
+                  child: isFabLoading
+                      ? const SpinKitFadingCircle(color: kWhite, size: 25)
+                      : const Icon(Icons.add_rounded, size: 30, color: kWhite),
+                ),
               ),
             ),
           ],
@@ -351,11 +382,11 @@ class _TaskPageState extends State<TaskPage> {
 
   Widget _buildGuestGoalsList() {
     if (GuestGoalStore.goals.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No savings goals yet in Guest Mode.\nTap the + button to add one.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: kTextBody),
+          style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70),
         ),
       );
     }
@@ -396,7 +427,7 @@ class _TaskPageState extends State<TaskPage> {
     VoidCallback onUpdate, {
     bool isGuest = false,
     Map<String, dynamic>? guestGoalData,
-    DocumentSnapshot? firestoreDoc, // ✅ added
+    DocumentSnapshot? firestoreDoc,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -408,7 +439,6 @@ class _TaskPageState extends State<TaskPage> {
           children: [
             SlidableAction(
               onPressed: (_) async {
-                // Edit action
                 if (isGuest && guestGoalData != null) {
                   _editGuestGoal(guestGoalData);
                 } else if (firestoreDoc != null) {
@@ -417,7 +447,7 @@ class _TaskPageState extends State<TaskPage> {
                     MaterialPageRoute(
                       builder: (_) => Addnewgoal(
                         goalId: id,
-                        existingData: firestoreDoc, // ✅ use doc
+                        existingData: firestoreDoc,
                         isGuest: false,
                       ),
                     ),
@@ -425,7 +455,7 @@ class _TaskPageState extends State<TaskPage> {
                   await calculateMonthlyAndTotalSavings();
                 }
               },
-              backgroundColor: kBlueAccent,
+              backgroundColor: kPrimaryDark3,
               foregroundColor: kWhite,
               icon: Icons.edit,
               label: 'Edit',
@@ -443,12 +473,11 @@ class _TaskPageState extends State<TaskPage> {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: kLightGray,
+            color: kCardDark,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: kBorderGray, width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: kBlueAccent.withOpacity(0.2),
+                color: kPrimaryDark3.withOpacity(0.5),
                 blurRadius: 6,
                 offset: const Offset(0, 3),
               ),
@@ -460,12 +489,12 @@ class _TaskPageState extends State<TaskPage> {
             children: [
               Row(
                 children: [
-                  Icon(getGoalIcon(title), color: kTextHeading),
+                  Icon(getGoalIcon(title), color: kWhite),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: kTextHeading,
@@ -477,19 +506,19 @@ class _TaskPageState extends State<TaskPage> {
               const SizedBox(height: 8),
               LinearProgressIndicator(
                 value: progress,
-                backgroundColor: kWhite,
-                color: kBlueAccent,
+                backgroundColor: kPrimaryDark2,
+                color: kAccentColor,
                 minHeight: 8,
               ),
               const SizedBox(height: 8),
               Text(
-                " ${current.toStringAsFixed(0)} / ${target.toStringAsFixed(0)}",
-                style: const TextStyle(color: kTextBody),
+                " $currencySymbol ${current.toStringAsFixed(0)} / $currencySymbol ${target.toStringAsFixed(0)}",
+                style: GoogleFonts.poppins(color: kTextBody),
               ),
               const SizedBox(height: 4),
               Text(
                 "Saved on: ${formatDateTime(createdAt)}",
-                style: const TextStyle(fontSize: 12, color: kTextSecondary),
+                style: GoogleFonts.poppins(fontSize: 12, color: kTextSecondary),
               ),
             ],
           ),
@@ -498,30 +527,116 @@ class _TaskPageState extends State<TaskPage> {
     );
   }
 
-  Widget _buildSavingsCircle() {
+  Widget _buildSavingsCard() {
     return Container(
-      width: 150,
-      height: 150,
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: kBlueAccent,
-        shape: BoxShape.circle,
-        border: Border.all(color: kBlueAccent, width: 1.5),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.monetization_on, size: 40, color: kWhite),
-          const SizedBox(height: 8),
-          Text(
-            "${monthlySavings.toStringAsFixed(0)}",
-            style: const TextStyle(
-              fontSize: 20,
-              color: kWhite,
-              fontWeight: FontWeight.bold,
-            ),
+        borderRadius: BorderRadius.circular(32),
+        gradient: LinearGradient(
+          colors: [kPrimaryDark1, kPrimaryDark2, kPrimaryDark3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 12),
           ),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Colors.white.withOpacity(0.25), Colors.white.withOpacity(0.1)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.2),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: const Icon(
+                    Icons.account_balance_wallet,
+                    size: 44,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "$currencySymbol ${monthlySavings.toStringAsFixed(2)}",
+                        style: GoogleFonts.poppins(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 6,
+                              color: Colors.black38,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        "Monthly Savings",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Track your progress easily",
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white60,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.5),
+                        blurRadius: 6,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -531,22 +646,21 @@ class _TaskPageState extends State<TaskPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: kLightGray,
+          color: kCardDark,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: kBorderGray, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: kBlueAccent.withOpacity(0.2),
+              color: kPrimaryDark3.withOpacity(0.5),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
           ],
         ),
         child: ListTile(
-          leading: const Icon(Icons.savings, color: kTextHeading),
-          title: const Text(
+          leading: const Icon(Icons.savings, color: kWhite),
+          title: Text(
             "This Month Savings",
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               color: kTextHeading,
               fontSize: 16,
@@ -556,11 +670,11 @@ class _TaskPageState extends State<TaskPage> {
             currentUser == null
                 ? "Using Guest Mode"
                 : "Based on all saved payments",
-            style: const TextStyle(color: kTextSubtitle, fontSize: 14),
+            style: GoogleFonts.poppins(color: kTextSubtitle, fontSize: 14),
           ),
           trailing: Text(
-            "${totalSavings.toStringAsFixed(0)}",
-            style: const TextStyle(
+            "$currencySymbol ${totalSavings.toStringAsFixed(2)}",
+            style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               color: kTextHeading,
               fontSize: 16,
